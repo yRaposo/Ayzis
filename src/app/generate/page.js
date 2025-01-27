@@ -55,7 +55,7 @@ export default function Generate() {
                     const filteredProducts = data.data.filter(newProduct =>
                         newProduct.codigo.toLowerCase() === row.SKU.toLowerCase() && !newProducts[account.token]?.some(existingProduct => existingProduct.id === newProduct.id)
                     );
-                    console.log('Produto filtrado:', filteredProducts)
+                    console.log('Produto filtrado:', filteredProducts);
                     if (filteredProducts.length > 0) {
                         newProducts[account.token] = filteredProducts;
                         row.Status = <FaCheckCircle size={24} />;
@@ -64,7 +64,6 @@ export default function Generate() {
                             console.log('Produtos Verificados:', updatedProducts);
                             return updatedProducts;
                         });
-                        return { row, products: newProducts };
                     } else {
                         row.Status = <IoIosWarning className="text-red-500" size={24} />;
                     }
@@ -74,6 +73,9 @@ export default function Generate() {
                 }
             }
         }
+        console.log('Row:', row);
+        console.log('New Products:', newProducts);
+        return { row, newProducts };
     }, [accounts]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -91,9 +93,10 @@ export default function Generate() {
             }
             const data = await fetchProducts(index, row);
             if (data) {
-                setVerifyedProducts([...verifyedProducts, data]);
+                newVerifyedProducts.push(data);
             }
         }));
+        setVerifyedProducts(newVerifyedProducts);
         setIsCheking(false);
         console.log('Produtos verificados:', newVerifyedProducts);
     }
