@@ -19,7 +19,7 @@ const processQueue = () => {
         .then(resolve)
         .catch(reject)
         .finally(() => {
-            setTimeout(processQueue, 333); // 333ms interval to ensure 3 requests per second
+            setTimeout(processQueue, 340); // 333ms interval to ensure 3 requests per second
         });
 };
 

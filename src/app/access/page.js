@@ -24,10 +24,10 @@ function AccessContent() {
         setToken(newToken);
         setRefreshToken(newRefreshToken);
         addAccount(newToken, newRefreshToken, newUserEmail);
-        router.push('/dashboard');
+        router.push('/generate');
       } else {
         addAccount(newToken, newRefreshToken, newUserEmail);
-        router.push('/dashboard/profile');
+        router.push('/generate');
       }
 
     }
