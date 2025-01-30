@@ -1,8 +1,3 @@
-import { getDepositoById } from "@/service/depositoService";
-import { getEstoque, postEstoque } from "@/service/estoqueService";
-import { getProductById, getProducts } from "@/service/productService";
-import { getUser } from "@/service/userService";
-
 const requestQueue = [];
 let isProcessingQueue = false;
 
@@ -32,27 +27,3 @@ const addToQueue = (requestFn) => {
         }
     });
 };
-
-export const getUserQ = (token) => {
-    return addToQueue(() => getUser(token));
-};
-
-export const getProductsQ = (pagina, limite, token, sku) => {
-    return addToQueue(() => getProducts(pagina, limite, token, sku));
-}
-
-export const getProductByIdQ = (id, token) => {
-    return addToQueue(() => getProductById(id, token));
-}
-
-export const getEstoqueQ = (id, token) => {
-    return addToQueue(() => getEstoque(id, token));
-}
-
-export const postEstoqueQ = (props, token) => {
-    return addToQueue(() => postEstoque(props, token));
-}
-
-export const getDepositoByIdQ = (id, token) => {
-    return addToQueue(() => getDepositoById(id, token));
-}
