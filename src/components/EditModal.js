@@ -1,8 +1,9 @@
 'use client'
-import { MdArrowBackIos, MdLaunch, MdClose } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 import StylezedBtn from "./StylezedBtn";
 import { useState, useEffect } from "react";
 import { updateProduct } from "@/service/productsService";
+import { RiSaveFill } from "react-icons/ri";
 
 export default function EditModal({ isOpen, onClose, produto }) {
     const [isError, setIsError] = useState(false);
@@ -94,7 +95,7 @@ export default function EditModal({ isOpen, onClose, produto }) {
 
                 <div className="flex justify-between mt-4">
                     <StylezedBtn props={{ icon: <MdClose />, text: 'Cancelar' }} onClick={onClose} />
-                    <StylezedBtn props={{ icon: <MdLaunch />, text: 'Salvar' }} onClick={() => handleSubmit()} />
+                    <StylezedBtn props={{ icon: <RiSaveFill />, text: 'Salvar' }} onClick={() => handleSubmit()} />
                 </div>
 
                 <div className="mt-4">

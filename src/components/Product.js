@@ -1,13 +1,19 @@
 import { useRouter } from "next/navigation";
+import StylezedBtn from "./StylezedBtn";
+import { MdEdit } from "react-icons/md";
 
-export default function Product({ product }) {
+export default function Product({ product, onEditComponent }) {
     const router = useRouter();
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
         router.push(`/database/produtos/${encodedId}`);
     }
-    
+
+    if (!product || !product.id || !product.nome) {
+        return <div>Produto não encontrado</div>;
+    }
+
     return (
         <>
             <div className="my-4 flex flex-col justify-between align-middle border-gray-300 rounded-xl p-4 border-2">
@@ -62,7 +68,10 @@ export default function Product({ product }) {
                         </div>
                         {product.composto && (
                             <div className="mt-4">
-                                <h2 className="text-lg font-bold">Produtos de Composição</h2>
+                                <div className="flex flex-row justify-between gap-1 align-middle items-center mb-2">
+                                    <h2 className="text-lg font-bold">Componentes</h2>
+                                    <StylezedBtn props={{ icon: <MdEdit />, text: 'Editar Componentes' }} onClick={onEditComponent} />
+                                </div>
                                 <div className="flex flex-col border-2 border-gray-300 rounded-xl px-2 mt-1 items-center w-full">
                                     <table className='min-w-full divide-y divide-gray-300 '>
                                         <thead className='bg-gray-50'>
@@ -73,8 +82,8 @@ export default function Product({ product }) {
                                         </thead>
                                         <tbody className='bg-white divide-y divide-gray-300'>
                                             {product.produtosComposicao.map((composicao) => (
-                                                <tr key={composicao.produto.id} onClick={() => handleRowClick(composicao.produto.id)} className="cursor-pointer hover:bg-black hover:text-white">
-                                                    <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>{composicao.produto.id}</td>
+                                                <tr key={composicao?.produtoComponente?.id} onClick={() => handleRowClick(composicao.produtoComponente.id)} className="cursor-pointer hover:bg-black hover:text-white">
+                                                    <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>{composicao?.produtoComponente?.id}</td>
                                                     <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>{composicao.quantidade}</td>
                                                 </tr>
                                             ))}

@@ -4,12 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBackIos, MdEdit } from "react-icons/md";
 import { TbTrashXFilled } from "react-icons/tb";
 
-
 import StylezedBtn from '@/components/StylezedBtn';
 import Product from '@/components/Product';
 import { getProductById } from '@/service/productsService';
 import EditModal from '@/components/EditModal';
 import DeleteModal from '@/components/DeleteModal';
+import CompModal from '@/components/CompModal';
 
 export default function ProductPage() {
     const { id } = useParams();
@@ -35,6 +35,10 @@ export default function ProductPage() {
         fetchProductById();
     }, [fetchProductById]);
 
+    const handlerEditComp = () => {
+        setModal('comp');
+    }
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -59,8 +63,9 @@ export default function ProductPage() {
                 </div>
             </div>
 
-            <Product product={product} />
+            <Product product={product} onEditComponent={handlerEditComp}/>
 
+            <CompModal produto={product} isOpen={modal === 'comp'} onClose={() => setModal('')} />
             <EditModal produto={product} isOpen={modal === 'edit'} onClose={() => setModal('')} />
             <DeleteModal id={decodeURIComponent(id)} isOpen={modal === 'delete'} onClose={() => setModal('')} />
         </div>
