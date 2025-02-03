@@ -10,7 +10,7 @@ import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
 import NewModal from "./NewModal";
 
-export default function ProductList() {
+export default function VendasList() {
     const [products, setProducts] = useState([]);
     const [page, setPage] = useState(0);
     const [sku, setSku] = useState('');

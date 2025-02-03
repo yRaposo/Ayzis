@@ -1,9 +1,15 @@
-'use client';
+'use client'
 
-export default function vendas() {
+import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import VendasList from "@/components/VendasList";
+
+export default function Products() {
+    const router = useRouter();
+
     return (
-        <div>
-            <h1>Vendas</h1>
+        <div className="m-4 flex justify-between align-middle">
+            <VendasList />
         </div>
-    );
+    )
 }

@@ -65,7 +65,11 @@ export default function ProductPage() {
 
             <Product product={product} onEditComponent={handlerEditComp}/>
 
-            <CompModal produto={product} isOpen={modal === 'comp'} onClose={() => setModal('')} />
+            <CompModal product={product} isOpen={modal === 'comp'} onClose={() => {
+                router.refresh();
+                setModal('')
+                fetchProductById();
+                }} router={router} />
             <EditModal produto={product} isOpen={modal === 'edit'} onClose={() => setModal('')} />
             <DeleteModal id={decodeURIComponent(id)} isOpen={modal === 'delete'} onClose={() => setModal('')} />
         </div>
