@@ -1,17 +1,17 @@
 'use client';
-import { useState, useEffect, useContext } from "react";
-import { MdFilterAlt, MdOutlineClear } from "react-icons/md";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
+import { MdFilterAlt, MdOutlineClear } from "react-icons/md";
+import { useState, useEffect, useContext } from "react";
+import { getAllVendas } from "@/service/vendasService";
 import { truncateText } from "@/utils/truncateText";
 import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
-import { getAllProducts, getProductById } from "@/service/productsService";
 import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
 import NewModal from "./NewModal";
 
 export default function VendasList() {
-    const [products, setProducts] = useState([]);
+    const [vendas, setVendas] = useState([]);
     const [page, setPage] = useState(0);
     const [sku, setSku] = useState('');
     const [isInputActive, setIsInputActive] = useState(false);
@@ -21,29 +21,17 @@ export default function VendasList() {
     const router = useRouter();
 
     useEffect(() => {
-        if (sku === '') {
-            getAllProducts(page, 10).then((response) => {
-                setProducts(response);
-                console.log(response);
-            }).catch((error) => {
-                console.error(error);
-            })
-        } else {
-            setIsSearching(true);
-            getProductById(sku).then((response) => {
-                setProducts([response]);
-                console.log(response);
-            }).catch((error) => {
-                console.error(error);
-            }).finally(() => {
-                setIsSearching(false);
-            })
-        }
+        getAllVendas(page, 10).then((response) => {
+            setVendas(response);
+            console.log(response);
+        }).catch((error) => {
+            console.error(error);
+        })
     }, [sku, page]);
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
-        router.push(`produtos/${encodedId}`);
+        router.push(`vendas/${encodedId}`);
     }
 
     const handleInputChange = (event) => {
@@ -65,7 +53,7 @@ export default function VendasList() {
 
     return (
         <div className="flex flex-col items-center aling-middle w-full">
-            <h1 className="justify-center items-center text-4xl font-bold text-center">Busque por um produto</h1>
+            <h1 className="justify-center items-center text-4xl font-bold text-center">Busque por vendas</h1>
 
             <div className="flex w-full gap-5 justify-between">
                 <div className="flex flex-row gap-5 w-auto">
@@ -105,7 +93,7 @@ export default function VendasList() {
                 </div>
 
                 <div className="flex rounded-3xl mt-5 justify-around gap-3">
-                    <StylezedBtn props={{ icon: <FaPlus />, text: 'Novo Produto' }} onClick={() => setModal('new')} />
+                    <StylezedBtn props={{ icon: <FaPlus />, text: 'Nova Venda' }} onClick={() => setModal('new')} />
                 </div>
             </div>
 
@@ -113,27 +101,29 @@ export default function VendasList() {
                 <table className="min-w-full divide-y divide-gray-300">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Nome</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Preço</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Marca</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Unidade</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Venda</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-300">
-                        {products.map((product) => {
-                            if (product && product.id) {
+                        {vendas.map((venda) => {
+                            if (venda && venda.id) {
                                 return (
-                                    <tr key={product.id} onClick={() => handleRowClick(product.id)} className="cursor-pointer hover:bg-black hover:text-white">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium truncate hidden md:table-cell">{truncateText(product.nome, 40)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{product.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate hidden md:table-cell">R${product.preco}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate hidden md:table-cell">{product.marca}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate hidden md:table-cell">{product.unidade}</td>
+                                    <tr key={venda.id} onClick={() => handleRowClick(venda.id)} className="cursor-pointer hover:bg-black hover:text-white">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.dataVenda}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.status}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.quantidade}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">R${venda.valorTotal}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{truncateText(venda.produto.id, 40)}</td>
                                     </tr>
                                 );
                             } else {
-                                console.error('Produto no formato errado:', product);
+                                console.error('Venda no formato errado:', venda);
                                 return null;
                             }
                         })}

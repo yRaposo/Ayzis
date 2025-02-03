@@ -5,35 +5,33 @@ import { MdArrowBackIos, MdEdit } from "react-icons/md";
 import { TbTrashXFilled } from "react-icons/tb";
 
 import StylezedBtn from '@/components/StylezedBtn';
-import Product from '@/components/Product';
-import { getProductById } from '@/service/productsService';
-import EditModal from '@/components/EditProdutoModal';
-import DeleteProdutoModal from '@/components/DeleteProdutoModal';
-import CompModal from '@/components/CompModal';
+import { getVendaById } from '@/service/vendasService';
+import Venda from '@/components/Venda';
+import EditVendaModal from '@/components/EditVendaModal ';
+import DeleteVendaModal from '@/components/DeleteVendaModal';
 
 export default function ProductPage() {
     const { id } = useParams();
     const router = useRouter();
-    const [product, setProduct] = useState(null);
+    const [venda, setVenda] = useState(null);
     const [modal, setModal] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const fetchProductById = useCallback(async () => {
+    const fetchVendaById = useCallback(async () => {
+        setLoading(true);
         try {
-            const decodedId = decodeURIComponent(id);
-            const data = await getProductById(decodedId);
-            setProduct(data);
-            console.log('Produto: ', data);
+            const response = await getVendaById(id);
+            setVenda(response);
         } catch (error) {
-            console.error('Erro ao obter o produto por id:', error);
+            console.error(error);
         } finally {
             setLoading(false);
         }
     }, [id]);
 
     useEffect(() => {
-        fetchProductById();
-    }, [fetchProductById]);
+        fetchVendaById();
+    }, [fetchVendaById]);
 
     const handlerEditComp = () => {
         setModal('comp');
@@ -47,8 +45,8 @@ export default function ProductPage() {
         )
     }
 
-    if (!product) {
-        return <div>Produto não encontrado</div>;
+    if (!venda) {
+        return <div>Venda não encontrada</div>;
     }
 
     return (
@@ -63,15 +61,12 @@ export default function ProductPage() {
                 </div>
             </div>
 
-            <Product product={product} onEditComponent={handlerEditComp}/>
+            <div className="mt-4">
+                <Venda venda={venda} />
+            </div>
 
-            <CompModal product={product} isOpen={modal === 'comp'} onClose={() => {
-                router.refresh();
-                setModal('')
-                fetchProductById();
-                }} router={router} />
-            <EditModal produto={product} isOpen={modal === 'edit'} onClose={() => setModal('')} />
-            <DeleteProdutoModal id={decodeURIComponent(id)} isOpen={modal === 'delete'} onClose={() => setModal('')} />
+            <EditVendaModal venda={venda} isOpen={modal === 'edit'} onClose={() => setModal('')} />
+            <DeleteVendaModal id={id} isOpen={modal === 'delete'} onClose={() => setModal('')} />
         </div>
     );
 }

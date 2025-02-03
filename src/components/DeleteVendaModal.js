@@ -1,12 +1,12 @@
 'use client'
-import { MdArrowBackIos, MdLaunch, MdClose } from "react-icons/md";
+import { MdArrowBackIos, MdClose } from "react-icons/md";
 import { TbTrashXFilled } from "react-icons/tb";
 import StylezedBtn from "./StylezedBtn";
-import { useState, useEffect } from "react";
-import { deleteProduct } from "@/service/productsService";
+import { useState } from "react";
+import { deleteVenda } from "@/service/vendasService";
 import { useRouter } from "next/navigation";
 
-export default function DeleteModal({ isOpen, onClose, id }) {
+export default function DeleteVendaModal({ isOpen, onClose, id }) {
     const router = useRouter();
     const [isError, setIsError] = useState(false);
     const [errorType, setErrorType] = useState('');
@@ -14,9 +14,9 @@ export default function DeleteModal({ isOpen, onClose, id }) {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
-        deleteProduct(id)
+        deleteVenda(id)
             .then(() => {
-                router.push('/database/produtos');
+                router.push('/database/vendas');
                 onClose();
             })
             .catch((error) => {
@@ -29,11 +29,11 @@ export default function DeleteModal({ isOpen, onClose, id }) {
         <div className="fixed overflow-y-auto inset-0 flex items-center justify-center bg-black bg-opacity-50 h-full w-full">
             <div className="bg-white p-5 w-full m-5 md:m-52 rounded-xl shadow-lg ">
                 <div>
-                    <h1 className="text-2xl font-bold mt-2">Deletar Produto</h1>
+                    <h1 className="text-2xl font-bold mt-2">Deletar Venda</h1>
                 </div>
 
                 <div className="mt-4">
-                    <p>Você tem certeza que deseja deletar este produto?</p>
+                    <p>Você tem certeza que deseja deletar esta venda?</p>
                 </div>
 
                 <div className="flex justify-between mt-4">
