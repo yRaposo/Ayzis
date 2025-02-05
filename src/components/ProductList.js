@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, useContext } from "react";
-import { MdFilterAlt, MdOutlineClear } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { MdOutlineClear } from "react-icons/md";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { truncateText } from "@/utils/truncateText";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,10 @@ import { CgSpinner } from "react-icons/cg";
 import { getAllProducts, getProductById } from "@/service/productsService";
 import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
-import NewModal from "./NewModal";
+import NewProdutoModal from "./NewProdutoModal";
+import { TbLibraryPlus } from "react-icons/tb";
+import NewProdutoMassModal from "./NewProdutoMassModal";
+import CompMassModal from "./CompMassModal";
 
 export default function ProductList() {
     const [products, setProducts] = useState([]);
@@ -23,14 +26,18 @@ export default function ProductList() {
     useEffect(() => {
         if (sku === '') {
             getAllProducts(page, 10).then((response) => {
-                setProducts(response);
+                if (Array.isArray(response)) {
+                    setProducts(response);
+                } else {
+                    setProducts([]);
+                }
                 console.log(response);
             }).catch((error) => {
                 console.error(error);
             })
         } else {
             setIsSearching(true);
-            getProductById(sku).then((response) => {
+            getProductById(sku.toUpperCase()).then((response) => {
                 setProducts([response]);
                 console.log(response);
             }).catch((error) => {
@@ -105,6 +112,8 @@ export default function ProductList() {
                 </div>
 
                 <div className="flex rounded-3xl mt-5 justify-around gap-3">
+                    <StylezedBtn props={{ icon: <TbLibraryPlus />, text: 'Composição por .CSV' }} onClick={() => setModal('compMass')} />
+                    <StylezedBtn props={{ icon: <TbLibraryPlus />, text: 'Adição por .CSV' }} onClick={() => setModal('newMass')} />
                     <StylezedBtn props={{ icon: <FaPlus />, text: 'Novo Produto' }} onClick={() => setModal('new')} />
                 </div>
             </div>
@@ -140,7 +149,9 @@ export default function ProductList() {
                     </tbody>
                 </table>
             </div>
-            <NewModal isOpen={modal === 'new'} onClose={() => setModal('')} />
+            <CompMassModal isOpen={modal === 'compMass'} onClose={() => setModal('')} />
+            <NewProdutoMassModal isOpen={modal === 'newMass'} onClose={() => setModal('')} />
+            <NewProdutoModal isOpen={modal === 'new'} onClose={() => setModal('')} />
         </div>
     );
 }

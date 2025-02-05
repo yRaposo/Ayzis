@@ -20,7 +20,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
 
     const getComponents = useCallback(async () => {
         try {
-            const response = await getComponentByProduct(product?.id);
+            const response = await getComponentByProduct(product?.id?.toUpperCase());
             setComp(response);
         } catch (error) {
             console.error(error);
@@ -40,7 +40,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
                 setProducts(response);
             } else {
                 setIsSearching(true);
-                const response = await getProductById(search);
+                const response = await getProductById(search.toUpperCase());
                 setProducts([response]);
             }
         } catch (error) {
@@ -64,7 +64,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
 
     const hamdlerDeleteComponent = async (id) => {
         setIsDeleting(true);
-        await deleteComponent(id).then(() => {
+        await deleteComponent(id.toUpperCase()).then(() => {
             getComponents();
             setIsError(false);
             setErrorType('');
@@ -79,7 +79,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
 
     const handleAddComponent = async (produtoComponente, quantidade) => {
         setIsAdding(true);
-        await postComponent(product.id, produtoComponente, quantidade).then(() => {
+        await postComponent(product.id.toUpperCase(), produtoComponente.toUpperCase(), quantidade).then(() => {
             getComponents();
             setIsError(false);
             setErrorType('');
@@ -95,7 +95,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
     }
 
     const handleQuantityComponent = async (componentId, productId, quantidade) => {
-        await patchComponent(componentId, product.id, productId, quantidade).then(() => {
+        await patchComponent(componentId, product.id.toUpperCase(), productId.toUpperCase(), quantidade).then(() => {
             setIsError(false);
             setErrorType('');
         }).catch((error) => {
@@ -170,7 +170,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
 
                     <div className="flex flex-col justify-start mt-4 w-full px-2">
                         <label className="text-md font-bold">Adicionar Componente</label>
-                        <input type="text" className="flex w-full justify-center border px-4 py-2 border-gray-300 rounded-full" value={search} placeholder="Digite o SKU do produto" onChange={(e) => setSearch(e.target.value)} onFocus={() => setSearchIsActive(true)} />
+                        <input type="text" className="flex w-full justify-center border px-4 py-2 border-gray-300 rounded-full" value={search} placeholder="Digite o SKU do produto" onChange={(e) => setSearch(e.target.value.toUpperCase())} onFocus={() => setSearchIsActive(true)} />
                     </div>
                     {search !== '' || searchIsActive && (
                         <div className="absolute right-auto mt-2 w-56 md:w-96 mx-2 bg-white border border-gray-300 rounded-md shadow-lg" onMouseOver={() => setSearchIsActive(true)} onMouseLeave={() => setSearchIsActive(false)}>

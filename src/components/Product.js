@@ -66,12 +66,12 @@ export default function Product({ product, onEditComponent }) {
                                 </div>
                             </div>
                         </div>
-                        {product.composto && (
-                            <div className="mt-4">
-                                <div className="flex flex-row justify-between gap-1 align-middle items-center mb-2">
+                                <div className="flex flex-row justify-between gap-1 align-middle items-center my-4">
                                     <h2 className="text-lg font-bold">Componentes</h2>
                                     <StylezedBtn props={{ icon: <MdEdit />, text: 'Editar Componentes' }} onClick={onEditComponent} />
                                 </div>
+                        {product.produtosComposicao && (
+                            <div className="">
                                 <div className="flex flex-col border-2 border-gray-300 rounded-xl px-2 mt-1 items-center w-full">
                                     <table className='min-w-full divide-y divide-gray-300 '>
                                         <thead className='bg-gray-50'>

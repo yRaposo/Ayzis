@@ -4,7 +4,7 @@ import StylezedBtn from "./StylezedBtn";
 import { useState, useEffect } from "react";
 import { createProduct } from "@/service/productsService";
 
-export default function NewModal({ isOpen, onClose }) {
+export default function NewProdutoModal({ isOpen, onClose }) {
     const [isError, setIsError] = useState(false);
     const [errorType, setErrorType] = useState('');
     const [id, setId] = useState('');
@@ -30,7 +30,7 @@ export default function NewModal({ isOpen, onClose }) {
             setIsError(false);
 
             const data = {
-                id: id,
+                id: id.toUpperCase(),
                 nome: nome,
                 descricao: descricao,
                 marca: marca,

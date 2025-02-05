@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
 import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
-import NewModal from "./NewModal";
+import NewProdutoModal from "./NewProdutoModal";
+import NewVendaModal from "./NewVendasModal";
 
 export default function VendasList() {
     const [vendas, setVendas] = useState([]);
@@ -130,7 +131,7 @@ export default function VendasList() {
                     </tbody>
                 </table>
             </div>
-            <NewModal isOpen={modal === 'new'} onClose={() => setModal('')} />
+            <NewVendaModal isOpen={modal === 'new'} onClose={() => setModal('')} />
         </div>
     );
 }
