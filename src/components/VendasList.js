@@ -10,6 +10,8 @@ import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
 import NewProdutoModal from "./NewProdutoModal";
 import NewVendaModal from "./NewVendasModal";
+import { TbLibraryPlus } from "react-icons/tb";
+import VendaMassModal from "./VendaMassModal";
 
 export default function VendasList() {
     const [vendas, setVendas] = useState([]);
@@ -94,6 +96,7 @@ export default function VendasList() {
                 </div>
 
                 <div className="flex rounded-3xl mt-5 justify-around gap-3">
+                    <StylezedBtn props={{ icon: <TbLibraryPlus />, text: 'Adição por .CSV' }} onClick={() => setModal('newMass')} />
                     <StylezedBtn props={{ icon: <FaPlus />, text: 'Nova Venda' }} onClick={() => setModal('new')} />
                 </div>
             </div>
@@ -131,6 +134,7 @@ export default function VendasList() {
                     </tbody>
                 </table>
             </div>
+            <VendaMassModal isOpen={modal === 'newMass'} onClose={() => setModal('')} />
             <NewVendaModal isOpen={modal === 'new'} onClose={() => setModal('')} />
         </div>
     );
