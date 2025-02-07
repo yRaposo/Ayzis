@@ -61,10 +61,12 @@ export default function NewVendaModal({ isOpen, onClose }) {
                 produto
             };
 
+            console.log(data);
+
             createVenda(data)
                 .then(() => {
                     onClose();
-                    window.location.reload();
+                    
                 })
                 .catch((error) => {
                     setIsError(true);

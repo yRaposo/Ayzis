@@ -7,7 +7,8 @@ import { FaPlusCircle } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
 import { MdCheckCircle, MdError, MdClose, MdLaunch } from 'react-icons/md';
 import StylezedBtn from '@/components/StylezedBtn';
-import { createVenda } from '@/service/vendasService'; 
+import { convertDateString } from '@/utils/dataConverter';
+import { createVenda } from '@/service/vendasService';
 
 export default function VendaMassModal({ isOpen, onClose }) {
     const [isError, setIsError] = useState(false);
@@ -69,22 +70,37 @@ export default function VendaMassModal({ isOpen, onClose }) {
     };
 
     const handleConfirm = async () => {
+        console.log('enviando')
+        console.log(vendas)
         setLoading(true);
         const results = [];
         let successCount = 0;
-        for (const [index, venda] of vendas.entries()) {
-            if (!venda || typeof venda !== 'object') continue;
+        for (const [index,
+            venda] of vendas.entries()) {
+            console.log(venda)
+
+            if (!venda || typeof venda !== 'object') {
+                console.log('venda não é um objeto')
+                continue;
+            }
+            console.log(convertDateString(venda?.DataDaVenda))
+            console.log('iniciando iteração sobre a venda: ' + venda?.NDeVenda)
             const idVenda = venda?.NDeVenda?.toUpperCase() || '';
-            const dataVenda = venda?.dataVenda || '';
-            const status = venda?.status || '';
-            const quantidade = parseInt(venda?.quantidade?.trim() || "0");
-            const valorTotal = parseFloat(venda?.valorTotal?.trim() || "0");
-            const produto = venda?.produto || '';
-            if (!idVenda || !dataVenda || !status || !quantidade || !valorTotal || !produto) {
+            const dataVenda = convertDateString(venda?.DataDaVenda) || '';
+            const status = venda?.Estado || '';
+            const quantidade = parseInt(venda?.Unidades?.trim() || "0");
+            const valorTotal = parseFloat(venda?.Total?.trim() || "0");
+            const produto = {
+                id: venda?.SKU?.toUpperCase() || '',
+            } 
+            if (!idVenda || !dataVenda || !status || !quantidade || !valorTotal || !produto.id) {
                 results.push({ venda, status: "error", message: "Dados da venda estão incompletos" });
                 continue;
             }
-            await postVenda({ idVenda, dataVenda, status, quantidade, valorTotal, produto }).then((response) => {
+            console.log('vendas iterada com sucesso, enviando dados')
+
+            console.log({ idVenda, dataVenda, status, quantidade, valorTotal, produto })
+            await createVenda({ idVenda, dataVenda, status, quantidade, valorTotal, produto }).then((response) => {
                 results.push({ venda, status: "success", response });
                 venda.status = 'success';
                 successCount++;
@@ -101,9 +117,6 @@ export default function VendaMassModal({ isOpen, onClose }) {
             });
         }
         setLoading(false);
-        setResults(results);
-        setSuccessVendas(successCount);
-        setServerResponses(results);
         console.log(results);
         console.log('Vendas com erro: ', errorVendas);
     };
@@ -167,7 +180,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                                 <tr>
                                     <th className="py-2 px-4 border-b">ID da Venda</th>
                                     <th className="py-2 px-4 border-b">Data da Venda</th>
-                                    <th className="py-2 px-4 border-b">Status</th>
+                                    <th className="py-2 px-4 border-b">Estado</th>
                                     <th className="py-2 px-4 border-b">Quantidade</th>
                                     <th className="py-2 px-4 border-b">Valor Total</th>
                                     <th className="py-2 px-4 border-b">Produto</th>
@@ -179,10 +192,10 @@ export default function VendaMassModal({ isOpen, onClose }) {
                                     <tr key={index}>
                                         <td className="py-2 px-4 border-b">{venda.NDeVenda}</td>
                                         <td className="py-2 px-4 border-b">{venda.DataDaVenda}</td>
-                                        <td className="py-2 px-4 border-b">{venda.status}</td>
-                                        <td className="py-2 px-4 border-b">{venda.quantidade}</td>
-                                        <td className="py-2 px-4 border-b">{venda.valorTotal}</td>
-                                        <td className="py-2 px-4 border-b">{venda.produto}</td>
+                                        <td className="py-2 px-4 border-b">{venda.Estado}</td>
+                                        <td className="py-2 px-4 border-b">{venda.Unidades}</td>
+                                        <td className="py-2 px-4 border-b">{venda.Total}</td>
+                                        <td className="py-2 px-4 border-b">{venda.SKU}</td>
                                         <td className="py-2 px-4 border-b">
                                             {venda.status === 'success' && <MdCheckCircle className="text-green-500" />}
                                             {venda.status === 'error' && <MdError className="text-red-500" />}
