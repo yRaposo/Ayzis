@@ -1,9 +1,11 @@
 'use server'
 import { ayzisAPI } from "@/libs/ayzisAPI";
 
-export const getAllVendas = async () => {
+export const getAllVendas = async (page, limit) => {
     try {
-        const response = await ayzisAPI.get("/vendas");
+        const response = await ayzisAPI.get("/vendas", {
+            params: { page, limit }
+        });
         return response.data;
     } catch (error) {
         console.error(error);

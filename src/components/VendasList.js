@@ -2,7 +2,7 @@
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { MdFilterAlt, MdOutlineClear } from "react-icons/md";
 import { useState, useEffect, useContext } from "react";
-import { getAllVendas } from "@/service/vendasService";
+import { getAllVendas, getVendasByProduto } from "@/service/vendasService";
 import { truncateText } from "@/utils/truncateText";
 import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
@@ -24,12 +24,31 @@ export default function VendasList() {
     const router = useRouter();
 
     useEffect(() => {
-        getAllVendas(page, 10).then((response) => {
-            setVendas(response);
-            console.log(response);
-        }).catch((error) => {
-            console.error(error);
-        })
+        if (sku === '') {
+            getAllVendas(page, 10).then((response) => {
+                if (Array.isArray(response)) {
+                    setVendas(response);
+                } else {
+                    setVendas([]);
+                }
+                console.log(response);
+            }).catch((error) => {
+                console.error(error);
+            })
+        } else {
+            setIsSearching(true);
+            getVendasByProduto(sku.toUpperCase()).then((response) => {
+                if (Array.isArray(response)) {
+                    setVendas(response);
+                } else {
+                    setVendas([]);
+                }
+            }).catch((error) => {
+                console.error(error);
+            }).finally(() => {
+                setIsSearching(false);
+            })
+        }
     }, [sku, page]);
 
     const handleRowClick = (id) => {
@@ -114,7 +133,7 @@ export default function VendasList() {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-300">
-                        {vendas.map((venda) => {
+                        {vendas?.map((venda) => {
                             if (venda && venda.id) {
                                 return (
                                     <tr key={venda.id} onClick={() => handleRowClick(venda.id)} className="cursor-pointer hover:bg-black hover:text-white">

@@ -70,37 +70,32 @@ export default function VendaMassModal({ isOpen, onClose }) {
     };
 
     const handleConfirm = async () => {
-        console.log('enviando')
-        console.log(vendas)
         setLoading(true);
         const results = [];
         let successCount = 0;
-        for (const [index,
-            venda] of vendas.entries()) {
-            console.log(venda)
-
+        for (const [index, venda] of vendas.entries()) {
             if (!venda || typeof venda !== 'object') {
                 console.log('venda não é um objeto')
                 continue;
             }
+
             console.log(convertDateString(venda?.DataDaVenda))
             console.log('iniciando iteração sobre a venda: ' + venda?.NDeVenda)
-            const idVenda = venda?.NDeVenda?.toUpperCase() || '';
-            const dataVenda = convertDateString(venda?.DataDaVenda) || '';
-            const status = venda?.Estado || '';
-            const quantidade = parseInt(venda?.Unidades?.trim() || "0");
-            const valorTotal = parseFloat(venda?.Total?.trim() || "0");
-            const produto = {
-                id: venda?.SKU?.toUpperCase() || '',
-            } 
-            if (!idVenda || !dataVenda || !status || !quantidade || !valorTotal || !produto.id) {
-                results.push({ venda, status: "error", message: "Dados da venda estão incompletos" });
-                continue;
-            }
             console.log('vendas iterada com sucesso, enviando dados')
 
-            console.log({ idVenda, dataVenda, status, quantidade, valorTotal, produto })
-            await createVenda({ idVenda, dataVenda, status, quantidade, valorTotal, produto }).then((response) => {
+            const data = {
+                id: venda?.NDeVenda?.toUpperCase() || '',
+                dataVenda: convertDateString(venda?.DataDaVenda) || '',
+                status: venda?.Estado || '',
+                quantidade: parseInt(venda?.Unidades?.trim() || "0"),
+                valorTotal: parseFloat(venda?.Total?.trim() || "0"),
+                produto: {
+                    id: venda?.SKU?.toUpperCase() || '',
+                }
+            }
+
+            console.log(data)
+            await createVenda(data).then((response) => {
                 results.push({ venda, status: "success", response });
                 venda.status = 'success';
                 successCount++;
