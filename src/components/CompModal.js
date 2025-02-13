@@ -2,7 +2,7 @@
 import { MdClose } from "react-icons/md";
 import StylezedBtn from "./StylezedBtn";
 import { useState, useEffect, useCallback } from "react";
-import { getAllProducts, getProductById } from "@/service/productsService";
+import { getPaginProducts, getProductById } from "@/service/productsService";
 import { patchComponent, deleteComponent, getComponentByProduct, postComponent } from "@/service/componentsService";
 import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
@@ -36,7 +36,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
     const searchProduct = useCallback(async () => {
         try {
             if (search === '') {
-                const response = await getAllProducts(0, 3);
+                const response = await getPaginProducts(0, 3);
                 setProducts(response);
             } else {
                 setIsSearching(true);

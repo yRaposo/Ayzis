@@ -5,7 +5,7 @@ import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { truncateText } from "@/utils/truncateText";
 import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
-import { getAllProducts, getProductById } from "@/service/productsService";
+import { getPaginProducts, getProductById } from "@/service/productsService";
 import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
 import NewProdutoModal from "./NewProdutoModal";
@@ -25,7 +25,7 @@ export default function ProductList() {
 
     useEffect(() => {
         if (sku === '') {
-            getAllProducts(page, 10).then((response) => {
+            getPaginProducts(page, 10).then((response) => {
                 if (Array.isArray(response)) {
                     setProducts(response);
                 } else {

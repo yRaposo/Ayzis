@@ -3,7 +3,7 @@ import { MdArrowBackIos, MdLaunch, MdClose } from "react-icons/md";
 import StylezedBtn from "./StylezedBtn";
 import { useState, useEffect, useCallback } from "react";
 import { createVenda } from "@/service/vendasService";
-import { getAllProducts, getProductById } from "@/service/productsService";
+import { getPaginProducts, getProductById } from "@/service/productsService";
 import { CgSpinner } from "react-icons/cg";
 
 export default function NewVendaModal({ isOpen, onClose }) {
@@ -23,7 +23,7 @@ export default function NewVendaModal({ isOpen, onClose }) {
     const searchProduct = useCallback(async () => {
         try {
             if (search === '') {
-                const response = await getAllProducts(0, 3);
+                const response = await getPaginProducts(0, 3);
                 setProducts(response);
             } else {
                 setIsSearching(true);
