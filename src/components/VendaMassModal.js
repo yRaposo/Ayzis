@@ -24,6 +24,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
     const [successVendas, setSuccessVendas] = useState(0);
     const [errorVendas, setErrorVendas] = useState([]);
     const [serverResponses, setServerResponses] = useState([]);
+    const [origem, setOrigem] = useState(1);
 
     const onDrop = (acceptedFiles) => {
         setLoading(true);
@@ -71,6 +72,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
 
     const handleConfirm = async () => {
         setLoading(true);
+        const selectOrigem = origem;
         const results = [];
         let successCount = 0;
         for (const [index, venda] of vendas.entries()) {
@@ -89,6 +91,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                 status: venda?.Estado || '',
                 quantidade: parseInt(venda?.Unidades?.trim() || "0"),
                 valorTotal: parseFloat(venda?.Total?.trim() || "0"),
+                origem: selectOrigem,
                 produto: {
                     id: venda?.SKU?.toUpperCase() || '',
                 }
@@ -200,6 +203,15 @@ export default function VendaMassModal({ isOpen, onClose }) {
                             </tbody>
                         </table>
                     )}
+                </div>
+
+                <div className='mt-4'>
+                    <label className="text-sm font-bold">Origem</label>
+                    <select className="w-full mt-1 p-2 border-2 border-gray-300 rounded-xl" value={origem} onChange={(e) => setOrigem(e.target.value)}>
+                        <option value="1">ML</option>
+                        <option value="2">Direta</option>
+                    </select>
+
                 </div>
 
                 {loading && (
