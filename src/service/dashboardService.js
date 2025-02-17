@@ -1,12 +1,7 @@
 'use server';
 
-import { getAllProducts, getPaginProducts } from "./productsService";
-import { getVendasByProdutoMes } from "./vendasService";
+import { ayzisAPI } from "@/libs/ayzisAPI";
 
-export default function dashboardService() {
-    const products = getAllProducts();
-
-    for (const product in products) {
-        const vendas = getVendasByProdutoMes(product.sku, new Date().getMonth() );
-    }
+export const getAllInfo = async () => {
+    return await ayzisAPI.get('/');
 }
