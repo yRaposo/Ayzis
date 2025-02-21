@@ -44,6 +44,7 @@ export default function ProductList() {
                 console.error(error);
             }).finally(() => {
                 setIsSearching(false);
+                setPage(0);
             })
         }
     }, [sku, page]);

@@ -26,52 +26,36 @@ export default function DashList() {
     const [modal, setModal] = useState('');
     const router = useRouter();
 
-    const fetchInfo = useCallback(async (products) => {
+    const fetchInfo = useCallback(async () => {
         try {
-            const infoResponses = await getAllInfo();
-            setInfoMes(infoResponses);
-            console.log(infoResponses);
+            const infoResponses = sku === '' ? await getAllInfo() : await getInfoByProduto(sku);
+            const organizedData = {};
+
+            infoResponses.forEach(info => {
+                const sku = info.produto.id;
+                const monthYear = info.monthYear.substring(0, 7); // "YYYY-MM"
+
+                if (!organizedData[sku]) {
+                    organizedData[sku] = {};
+                }
+
+                organizedData[sku][monthYear] = info.total !== null ? info.total : 0;
+            });
+
+            setInfoMes(organizedData);
+            console.log(organizedData);
         } catch (error) {
             console.error(error);
         }
-    }, []);
+    }, [sku]);
 
     useEffect(() => {
-        if (products.length > 0) {
-            fetchInfo(products);
-        }
-    }, [products, fetchInfo]);
-
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                if (sku === '') {
-                    const response = await getPaginProducts(page, 10);
-                    if (Array.isArray(response)) {
-                        setProducts(response);
-                    } else {
-                        setProducts([]);
-                    }
-                    console.log(response);
-                } else {
-                    setIsSearching(true);
-                    const response = await getProductById(sku.toUpperCase());
-                    setProducts([response]);
-                    console.log(response);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsSearching(false);
-            }
-        };
-
-        fetchProducts();
-    }, [sku, page]);
+        fetchInfo();
+    }, [fetchInfo]);
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
-        router.push(`produtos/${encodedId}`);
+        router.push(`dashboard/${encodedId}`);
     };
 
     const handleInputChange = (event) => {
@@ -86,6 +70,38 @@ export default function DashList() {
     const handleInputBlur = () => {
         setIsInputActive(false);
     };
+
+    const renderTableHeader = () => {
+        const months = new Set();
+        Object.values(infoMes).forEach(data => {
+            Object.keys(data).forEach(month => months.add(month));
+        });
+
+        const sortedMonths = Array.from(months).sort();
+
+        return (
+            <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                {sortedMonths.map(month => (
+                    <th key={month} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{month}</th>
+                ))}
+            </tr>
+        );
+    };
+
+    const renderTableRows = () => {
+        const sortedSkus = Object.keys(infoMes).sort();
+
+        return sortedSkus.map(sku => (
+            <tr key={sku} onClick={() => handleRowClick(sku)} className="cursor-pointer hover:bg-black hover:text-white">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{sku}</td>
+                {Object.keys(infoMes[sku]).sort().map(month => (
+                    <td key={month} className="px-6 py-4 whitespace-nowrap text-sm">{infoMes[sku][month]}</td>
+                ))}
+            </tr>
+        ));
+    };
+
 
     return (
         <div className="flex flex-col items-center aling-middle w-full">
@@ -128,47 +144,19 @@ export default function DashList() {
                     </div>
                 </div>
 
-                <div className="flex rounded-3xl mt-5 justify-around gap-3">
-                    <StylezedBtn props={{ icon: <TbLibraryPlus />, text: 'Composição por .CSV' }} onClick={() => setModal('compMass')} />
-                    <StylezedBtn props={{ icon: <TbLibraryPlus />, text: 'Adição por .CSV' }} onClick={() => setModal('newMass')} />
-                    <StylezedBtn props={{ icon: <FaPlus />, text: 'Novo Produto' }} onClick={() => setModal('new')} />
-                </div>
             </div>
 
-            <div className="flex flex-col border-2 border-gray-300 rounded-xl px-2 mt-5 items-center w-full">
+            <div className="flex flex-col border-2 border-gray-300 rounded-xl px-2 mt-5 items-center w-full overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Nome</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Preço</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Marca</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Unidade</th>
-                        </tr>
+                    <thead className="bg-gray-50 sticky top-0 z-10">
+                        {renderTableHeader()}
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-300">
-                        {products.map((product) => {
-                            if (product && product.id) {
-                                return (
-                                    <tr key={product.id} onClick={() => handleRowClick(product.id)} className="cursor-pointer hover:bg-black hover:text-white">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium truncate hidden md:table-cell">{truncateText(product.nome, 40)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{product.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate hidden md:table-cell">R${product.preco}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate hidden md:table-cell">{product.marca}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm truncate hidden md:table-cell">{product.unidade}</td>
-                                    </tr>
-                                );
-                            } else {
-                                console.error('Produto no formato errado:', product);
-                                return null;
-                            }
-                        })}
+                        {renderTableRows()}
                     </tbody>
                 </table>
             </div>
-            <CompMassModal isOpen={modal === 'compMass'} onClose={() => setModal('')} />
-            <NewProdutoMassModal isOpen={modal === 'newMass'} onClose={() => setModal('')} />
-            <NewProdutoModal isOpen={modal === 'new'} onClose={() => setModal('')} />
+
         </div>
     );
 }
