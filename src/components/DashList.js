@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect, useCallback } from "react";
 import { MdOutlineClear } from "react-icons/md";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
@@ -30,16 +29,27 @@ export default function DashList() {
         try {
             const infoResponses = sku === '' ? await getAllInfo() : await getInfoByProduto(sku);
             const organizedData = {};
+            const allMonths = new Set();
 
             infoResponses.forEach(info => {
                 const sku = info.produto.id;
                 const monthYear = info.monthYear.substring(0, 7); // "YYYY-MM"
+                allMonths.add(monthYear);
 
                 if (!organizedData[sku]) {
                     organizedData[sku] = {};
                 }
 
                 organizedData[sku][monthYear] = info.total !== null ? info.total : 0;
+            });
+
+            // Preencher meses ausentes com 0
+            Object.keys(organizedData).forEach(sku => {
+                allMonths.forEach(month => {
+                    if (!organizedData[sku][month]) {
+                        organizedData[sku][month] = 0;
+                    }
+                });
             });
 
             setInfoMes(organizedData);
@@ -101,7 +111,6 @@ export default function DashList() {
             </tr>
         ));
     };
-
 
     return (
         <div className="flex flex-col items-center aling-middle w-full">

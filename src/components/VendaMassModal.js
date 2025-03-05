@@ -81,22 +81,89 @@ export default function VendaMassModal({ isOpen, onClose }) {
                 continue;
             }
 
+            console.log(venda?.DataDaVenda)
             console.log(convertDateString(venda?.DataDaVenda))
             console.log('iniciando iteração sobre a venda: ' + venda?.NDeVenda)
-            console.log('vendas iterada com sucesso, enviando dados')
 
-            const data = {
-                id: venda?.NDeVenda?.toUpperCase() || '',
-                dataVenda: convertDateString(venda?.DataDaVenda) || '',
-                status: venda?.Estado || '',
-                quantidade: parseInt(venda?.Unidades?.trim() || "0"),
-                valorTotal: parseFloat(venda?.Total?.trim() || "0"),
-                origem: selectOrigem,
-                produto: {
-                    id: venda?.SKU?.toUpperCase() || '',
+            let data;
+
+            if (venda.Estado.includes('Pacote')) {
+                continue;
+                // const prodPack = venda.Estado.split(' ')[2].trim();
+                // for (let i = 1; i <= prodPack; i++) {
+                //     const nextVenda = vendas[index + i];
+                //     if (nextVenda) {
+                //         console.log('Próxima venda na fila: ', nextVenda);
+                //         nextVenda.ReceitaPorProdutos = nextVenda.Unidades * nextVenda.PrecoUnitarioDeVendaDoAnuncio;
+
+                //         if (venda.ReceitaPorEnvio) {
+                //             nextVenda.ReceitaPorEnvio = venda.ReceitaPorEnvio / prodPack;
+                //         }
+
+                //         if (venda.TarifasDeEnvio) {
+                //             nextVenda.TarifasDeEnvio = venda.TarifasDeEnvio / prodPack;
+                //         }
+
+                //         if (venda.TarifaDeVendaEImpostos) {
+                //             let tarifa;
+                //             let anunType;
+                //             if (nextVenda.TipoDeAnuncio === 'Clássico') {
+                //                 anunType = -0.12;
+                //             } else {
+                //                 anunType = -0.17;
+                //             }
+
+                //             if (nextVenda.ReceitaPorProdutos < 79) {
+                //                 tarifa = -6;
+                //             } else {
+                //                 tarifa = 0;
+                //             }
+
+                //             nextVenda.TarifaDeVendaEImpostos = nextVenda.ReceitaPorProdutos * (anunType + tarifa);
+
+                //             if (nextVenda.TarifaDeVendaEImpostos) {
+                //                 nextVenda.Total += nextVenda.TarifaDeVendaEImpostos
+                //             }
+
+                //             if (nextVenda.TarifasDeEnvio) {
+                //                 nextVenda.Total += nextVenda.TarifasDeEnvio
+                //             }
+
+                //             if (nextVenda.ReceitaPorEnvio) {
+                //                 nextVenda.Total += nextVenda.ReceitaPorEnvio
+                //             }
+
+                //             if (nextVenda.ReceitaPorProdutos) {
+                //                 nextVenda.Total += nextVenda.ReceitaPorProdutos
+                //             }
+                //         }
+
+                //         data = {
+                //             id: nextVenda?.NDeVenda?.toUpperCase() || '',
+                //             dataVenda: convertDateString(nextVenda?.DataDaVenda) || '',
+                //             status: nextVenda?.Estado || '',
+                //             quantidade: parseInt(nextVenda?.Unidades?.trim() || "0"),
+                //             valorTotal: parseFloat(nextVenda?.Total?.trim() || "0"),
+                //             origem: selectOrigem,
+                //             produto: {
+                //                 id: nextVenda?.SKU?.toUpperCase() || '',
+                //             }
+                //         }
+                //     }
+                // }
+            } else {
+                data = {
+                    id: venda?.NDeVenda?.toUpperCase() || '',
+                    dataVenda: convertDateString(venda?.DataDaVenda) || '',
+                    status: venda?.Estado || '',
+                    quantidade: parseInt(venda?.Unidades?.trim() || "0"),
+                    valorTotal: parseFloat(venda?.Total?.trim() || "0"),
+                    origem: selectOrigem,
+                    produto: {
+                        id: venda?.SKU?.toUpperCase() || '',
+                    }
                 }
             }
-
             console.log(data)
             await createVenda(data).then((response) => {
                 results.push({ venda, status: "success", response });

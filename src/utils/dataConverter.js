@@ -2,7 +2,7 @@ export function convertDateString(dateString) {
     const months = {
         "janeiro": "01",
         "fevereiro": "02",
-        "março": "03",
+        "marco": "03",
         "abril": "04",
         "maio": "05",
         "junho": "06",

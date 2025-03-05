@@ -13,6 +13,7 @@ export default function DeleteVendaModal({ isOpen, onClose, id }) {
     const [errorType, setErrorType] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     if (!isOpen) return null;
 

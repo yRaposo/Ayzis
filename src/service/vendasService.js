@@ -75,6 +75,15 @@ export const createVenda = async (data) => {
     }
 }
 
+export const createVendasEmLote = async (vendas) => {
+    try {
+        const response = await ayzisAPI.post("/vendas/lote", vendas);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export const updateVenda = async (data) => {
     try {
         const response = await ayzisAPI.patch("/vendas", data);
