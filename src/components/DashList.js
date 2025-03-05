@@ -113,7 +113,7 @@ export default function DashList() {
     };
 
     return (
-        <div className="flex flex-col items-center aling-middle w-full">
+        <div className="flex flex-col items-center align-middle w-full">
             <h1 className="justify-center items-center text-4xl font-bold text-center">Busque por um produto</h1>
 
             <div className="flex w-full gap-5 justify-between">
@@ -156,14 +156,16 @@ export default function DashList() {
             </div>
 
             <div className="flex flex-col border-2 border-gray-300 rounded-xl px-2 mt-5 items-center w-full overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50 sticky top-0 z-10">
-                        {renderTableHeader()}
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-300">
-                        {renderTableRows()}
-                    </tbody>
-                </table>
+                <div className="w-full overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-300">
+                        <thead className="bg-gray-50 sticky top-0 z-10">
+                            {renderTableHeader()}
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-300">
+                            {renderTableRows()}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
