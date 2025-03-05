@@ -13,6 +13,8 @@ import NewProdutoMassModal from "./NewProdutoMassModal";
 import CompMassModal from "./CompMassModal";
 import { getAllInfo, getInfoById, getInfoByProduto } from "@/service/dashboardService";
 import Product from "./Product";
+import { RiFileExcel2Line } from "react-icons/ri";
+import { exportToExcel } from "@/utils/ExportToExcel";
 
 export default function DashList() {
     const [products, setProducts] = useState([]);
@@ -151,6 +153,10 @@ export default function DashList() {
                             <IoMdArrowDropright color="#000" size="20" />
                         </button>
                     </div>
+                </div>
+
+                <div className="flex rounded-3xl mt-5 justify-around gap-3">
+                    <StylezedBtn props={{ icon: <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={() => exportToExcel(infoMes)} />
                 </div>
 
             </div>
