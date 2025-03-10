@@ -1,6 +1,4 @@
 import { useRouter } from "next/navigation";
-import StylezedBtn from "./StylezedBtn";
-import { MdEdit } from "react-icons/md";
 
 export default function Venda({ venda, onEditComponent }) {
     const router = useRouter();
