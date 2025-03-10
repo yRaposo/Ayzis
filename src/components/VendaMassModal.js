@@ -239,7 +239,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="mt-4 overflow-x-auto">
-                    {vendas.length > 0 && (
+                    {/* {vendas.length > 0 && (
                         <table className="min-w-full bg-white">
                             <thead>
                                 <tr>
@@ -269,7 +269,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                                 ))}
                             </tbody>
                         </table>
-                    )}
+                    )} */}
                 </div>
 
                 <div className='mt-4'>

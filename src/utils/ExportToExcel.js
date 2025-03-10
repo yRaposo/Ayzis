@@ -1,21 +1,46 @@
-import * as XLSX from 'xlsx';
+import exceljs from 'exceljs';
 
 export const exportToExcel = (data) => {
-    // Converte o objeto infoMes em um array de objetos
-    const formattedData = [];
-    const months = Array.from(new Set(Object.values(data).flatMap(Object.keys))).sort();
+    const workbook = new exceljs.Workbook();
+    const sheet = workbook.addWorksheet('Sheet 1');
 
-    Object.keys(data).forEach(sku => {
-        const row = { SKU: sku };
-        months.forEach(month => {
-            row[month] = data[sku][month] || 0;
+    // Get all unique months
+    const months = new Set();
+    data.forEach(info => {
+        Object.keys(info).forEach(month => months.add(month));
+    });
+    const sortedMonths = Array.from(months).sort();
+
+    // Define columns
+    const columns = [
+        { header: 'SKU', key: 'SKU', width: 10, style: { font: { bold: true } } },
+        { header: 'Fornecedor', key: 'Fornecedor', width: 15, style: { font: { bold: true } } },
+        { header: 'Descrição', key: 'Descrição', width: 30, style: { font: { bold: true } } },
+        ...sortedMonths.map(month => ({ header: month, key: month, width: 15, style: { font: { bold: true } } }))
+    ];
+    sheet.columns = columns;
+
+    // Add rows
+    data.forEach(item => {
+        console.log("Objeto:",item);
+        const row = {
+            SKU: item.SKU,
+            Fornecedor: item.Marca,
+            Descrição: item.Descricao,
+        };
+        sortedMonths.forEach(month => {
+            row[month] = item[month] || 0;
         });
-        formattedData.push(row);
+        console.log("Linha:",row);
+        sheet.addRow(row);
     });
 
-    const ws = XLSX.utils.json_to_sheet(formattedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Relatório");
-
-    XLSX.writeFile(wb, `Relatorio.xlsx`);
+    // Save the workbook
+    workbook.xlsx.writeBuffer().then(buffer => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'report.xlsx';
+        link.click();
+    });
 };

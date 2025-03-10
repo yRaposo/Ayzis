@@ -4,7 +4,7 @@ import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { truncateText } from "@/utils/truncateText";
 import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
-import { getPaginProducts, getProductById } from "@/service/productsService";
+import { getAllProducts, getPaginProducts, getProductById } from "@/service/productsService";
 import { FaPlus } from "react-icons/fa";
 import StylezedBtn from "./StylezedBtn";
 import NewProdutoModal from "./NewProdutoModal";
@@ -114,6 +114,31 @@ export default function DashList() {
         ));
     };
 
+    const fetchProducts = useCallback(async (id) => {
+        try {
+            const response = await getProductById(id);
+            console.log(response)
+            return response;
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
+    const exportData = async () => {
+        const dataToExport = await Promise.all(Object.keys(infoMes).map(async (sku) => {
+            const product = await fetchProducts(sku);
+            return {
+                SKU: sku,
+                Marca: product?.marca || '',
+                Descricao: product?.nome || '',
+                ...infoMes[sku]
+            };
+        }));
+
+        console.log(dataToExport);
+        exportToExcel(dataToExport);
+    };
+
     return (
         <div className="flex flex-col items-center align-middle w-full">
             <h1 className="justify-center items-center text-4xl font-bold text-center">Busque por um produto</h1>
@@ -156,7 +181,7 @@ export default function DashList() {
                 </div>
 
                 <div className="flex rounded-3xl mt-5 justify-around gap-3">
-                    <StylezedBtn props={{ icon: <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={() => exportToExcel(infoMes)} />
+                    <StylezedBtn props={{ icon: <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={exportData} />
                 </div>
 
             </div>
