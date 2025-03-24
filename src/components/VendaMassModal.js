@@ -8,7 +8,7 @@ import { CgSpinner } from 'react-icons/cg';
 import { MdCheckCircle, MdError, MdClose, MdLaunch } from 'react-icons/md';
 import StylezedBtn from '@/components/StylezedBtn';
 import { convertDateString } from '@/utils/dataConverter';
-import { createVenda } from '@/service/vendasService';
+import { createVenda, createVendaInMass } from '@/service/vendasService';
 
 export default function VendaMassModal({ isOpen, onClose }) {
     const [isError, setIsError] = useState(false);
@@ -73,84 +73,86 @@ export default function VendaMassModal({ isOpen, onClose }) {
     const handleConfirm = async () => {
         setLoading(true);
         const selectOrigem = origem;
+        const vendasToSend = [];
         const results = [];
         let successCount = 0;
+
         for (const [index, venda] of vendas.entries()) {
             if (!venda || typeof venda !== 'object') {
-                console.log('venda não é um objeto')
+                console.log('venda não é um objeto');
                 continue;
             }
 
-            console.log(venda?.DataDaVenda)
-            console.log(convertDateString(venda?.DataDaVenda))
-            console.log('iniciando iteração sobre a venda: ' + venda?.NDeVenda)
+            console.log(venda?.DataDaVenda);
+            console.log(convertDateString(venda?.DataDaVenda));
+            console.log('iniciando iteração sobre a venda: ' + venda?.NDeVenda);
 
             let data;
 
             if (venda.Estado.includes('Pacote')) {
-                continue;
-                // const prodPack = venda.Estado.split(' ')[2].trim();
-                // for (let i = 1; i <= prodPack; i++) {
-                //     const nextVenda = vendas[index + i];
-                //     if (nextVenda) {
-                //         console.log('Próxima venda na fila: ', nextVenda);
-                //         nextVenda.ReceitaPorProdutos = nextVenda.Unidades * nextVenda.PrecoUnitarioDeVendaDoAnuncio;
+                const prodPack = venda.Estado.split(' ')[2].trim();
+                for (let i = 1; i <= prodPack; i++) {
+                    const nextVenda = vendas[index + i];
+                    if (nextVenda) {
+                        console.log('Próxima venda na fila: ', nextVenda);
+                        nextVenda.ReceitaPorProdutos = nextVenda.Unidades * nextVenda.PrecoUnitarioDeVendaDoAnuncio;
 
-                //         if (venda.ReceitaPorEnvio) {
-                //             nextVenda.ReceitaPorEnvio = venda.ReceitaPorEnvio / prodPack;
-                //         }
+                        if (venda.ReceitaPorEnvio) {
+                            nextVenda.ReceitaPorEnvio = venda.ReceitaPorEnvio / prodPack;
+                        }
 
-                //         if (venda.TarifasDeEnvio) {
-                //             nextVenda.TarifasDeEnvio = venda.TarifasDeEnvio / prodPack;
-                //         }
+                        if (venda.TarifasDeEnvio) {
+                            nextVenda.TarifasDeEnvio = venda.TarifasDeEnvio / prodPack;
+                        }
 
-                //         if (venda.TarifaDeVendaEImpostos) {
-                //             let tarifa;
-                //             let anunType;
-                //             if (nextVenda.TipoDeAnuncio === 'Clássico') {
-                //                 anunType = -0.12;
-                //             } else {
-                //                 anunType = -0.17;
-                //             }
+                        if (venda.TarifaDeVendaEImpostos) {
+                            let tarifa;
+                            let anunType;
+                            if (nextVenda.TipoDeAnuncio === 'Clássico') {
+                                anunType = -0.12;
+                            } else {
+                                anunType = -0.17;
+                            }
 
-                //             if (nextVenda.ReceitaPorProdutos < 79) {
-                //                 tarifa = -6;
-                //             } else {
-                //                 tarifa = 0;
-                //             }
+                            if (nextVenda.ReceitaPorProdutos < 79) {
+                                tarifa = -6;
+                            } else {
+                                tarifa = 0;
+                            }
 
-                //             nextVenda.TarifaDeVendaEImpostos = nextVenda.ReceitaPorProdutos * (anunType + tarifa);
+                            nextVenda.TarifaDeVendaEImpostos = nextVenda.ReceitaPorProdutos * (anunType + tarifa);
 
-                //             if (nextVenda.TarifaDeVendaEImpostos) {
-                //                 nextVenda.Total += nextVenda.TarifaDeVendaEImpostos
-                //             }
+                            if (nextVenda.TarifaDeVendaEImpostos) {
+                                nextVenda.Total += nextVenda.TarifaDeVendaEImpostos;
+                            }
 
-                //             if (nextVenda.TarifasDeEnvio) {
-                //                 nextVenda.Total += nextVenda.TarifasDeEnvio
-                //             }
+                            if (nextVenda.TarifasDeEnvio) {
+                                nextVenda.Total += nextVenda.TarifasDeEnvio;
+                            }
 
-                //             if (nextVenda.ReceitaPorEnvio) {
-                //                 nextVenda.Total += nextVenda.ReceitaPorEnvio
-                //             }
+                            if (nextVenda.ReceitaPorEnvio) {
+                                nextVenda.Total += nextVenda.ReceitaPorEnvio;
+                            }
 
-                //             if (nextVenda.ReceitaPorProdutos) {
-                //                 nextVenda.Total += nextVenda.ReceitaPorProdutos
-                //             }
-                //         }
+                            if (nextVenda.ReceitaPorProdutos) {
+                                nextVenda.Total += nextVenda.ReceitaPorProdutos;
+                            }
+                        }
 
-                //         data = {
-                //             id: nextVenda?.NDeVenda?.toUpperCase() || '',
-                //             dataVenda: convertDateString(nextVenda?.DataDaVenda) || '',
-                //             status: nextVenda?.Estado || '',
-                //             quantidade: parseInt(nextVenda?.Unidades?.trim() || "0"),
-                //             valorTotal: parseFloat(nextVenda?.Total?.trim() || "0"),
-                //             origem: selectOrigem,
-                //             produto: {
-                //                 id: nextVenda?.SKU?.toUpperCase() || '',
-                //             }
-                //         }
-                //     }
-                // }
+                        data = {
+                            id: nextVenda?.NDeVenda?.toUpperCase() || '',
+                            dataVenda: convertDateString(nextVenda?.DataDaVenda) || '',
+                            status: nextVenda?.Estado || '',
+                            quantidade: parseInt(nextVenda?.Unidades?.trim() || "0"),
+                            valorTotal: parseFloat(nextVenda?.Total?.trim() || "0"),
+                            origem: selectOrigem,
+                            produto: {
+                                id: nextVenda?.SKU?.toUpperCase() || '',
+                            }
+                        };
+                        vendasToSend.push(data);
+                    }
+                }
             } else {
                 data = {
                     id: venda?.NDeVenda?.toUpperCase() || '',
@@ -162,28 +164,36 @@ export default function VendaMassModal({ isOpen, onClose }) {
                     produto: {
                         id: venda?.SKU?.toUpperCase() || '',
                     }
-                }
+                };
+                vendasToSend.push(data);
             }
-            console.log(data)
-            await createVenda(data).then((response) => {
-                results.push({ venda, status: "success", response });
-                venda.status = 'success';
-                successCount++;
-            }).catch((error) => {
-                const errorMessage = error.response?.data?.message || error.message;
-                results.push({ venda, status: "error", message: errorMessage });
-                venda.status = 'error';
-                venda.error = errorMessage;
-                setErrorVendas([...errorVendas, venda]);
-                console.error(errorMessage);
-                console.error(venda);
-            }).finally(() => {
-                setProgress(((index + 1) / vendas.length) * 100);
-            });
         }
-        setLoading(false);
-        console.log(results);
-        console.log('Vendas com erro: ', errorVendas);
+
+        try {
+            const response = await createVendaInMass(vendasToSend);
+            response.forEach((res, index) => {
+                if (res.status === 'success') {
+                    results.push({ venda: vendas[index], status: "success", response: res });
+                    vendas[index].status = 'success';
+                    successCount++;
+                } else {
+                    const errorMessage = res.message || 'Erro desconhecido';
+                    results.push({ venda: vendas[index], status: "error", message: errorMessage });
+                    vendas[index].status = 'error';
+                    vendas[index].error = errorMessage;
+                    setErrorVendas([...errorVendas, vendas[index]]);
+                    console.error(errorMessage);
+                    console.error(vendas[index]);
+                }
+            });
+        } catch (error) {
+            console.error('Erro ao salvar vendas em massa', error);
+        } finally {
+            setProgress(100);
+            setLoading(false);
+            console.log(results);
+            console.log('Vendas com erro: ', errorVendas);
+        }
     };
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: ".CSV" });

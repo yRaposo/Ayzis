@@ -66,18 +66,18 @@ export const getVendaByStatus = async (status) => {
     }
 }
 
-export const createVenda = async (data) => {
+export const createVendaInMass = async (data) => {
     try {
-        const response = await ayzisAPI.post("/vendas", data);
+        const response = await ayzisAPI.post("/vendas/mass", data);
         return response.data;
     } catch (error) {
         console.error(error);
     }
 }
 
-export const createVendasEmLote = async (vendas) => {
+export const createVenda = async (data) => {
     try {
-        const response = await ayzisAPI.post("/vendas/lote", vendas);
+        const response = await ayzisAPI.post("/vendas", data);
         return response.data;
     } catch (error) {
         console.error(error);
