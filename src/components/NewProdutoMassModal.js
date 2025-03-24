@@ -1,7 +1,7 @@
 'use client'
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { createProduct } from "@/service/productsService";
+import { createProduct, createProductInMass } from "@/service/productsService";
 import Papa from "papaparse";
 import { MdClose, MdLaunch, MdCheckCircle, MdError } from "react-icons/md";
 import { CgSpinner } from "react-icons/cg";
@@ -71,6 +71,7 @@ export default function NewProdutoMassModal({ isOpen, onClose }) {
     const handleConfirm = async () => {
         setLoading(true);
         const results = [];
+        const data = [];
         let successCount = 0;
         for (const [index, product] of products.entries()) {
             if (!product || typeof product !== 'object') continue;
@@ -80,7 +81,7 @@ export default function NewProdutoMassModal({ isOpen, onClose }) {
                 continue;
             }
 
-            const data = {
+            data.push({
                 id: id.toUpperCase(),
                 nome: (product?.Descricao || '').substring(0, 250).replace(/[^\w\s]/gi, ''),
                 descricao: (product?.Descricao || '').substring(0, 250).replace(/[^\w\s]/gi, ''),
@@ -95,24 +96,21 @@ export default function NewProdutoMassModal({ isOpen, onClose }) {
                 unidade: "Unidade",
                 produtosComposicao: [],
                 composto: false
-            };
-
-            await createProduct(data).then(response => {
-                results.push({ product: data, status: "success", response });
-                product.status = 'success';
-                successCount++;
-            }).catch(error => {
-                const errorMessage = error.response?.data?.message || error.message;
-                results.push({ product, status: "error", message: errorMessage });
-                product.status = 'error';
-                product.error = errorMessage;
-                setErrorProducts([...errorProducts, product]);
-                console.error(errorMessage);
-                console.error(product);
-            }).finally(() => {
-                setProgress(((index + 1) / products.length) * 100);
             });
         }
+        
+        try {
+            const response = await createProductInMass(data);
+            results.push({ product: data, status: "success", response });
+            successCount = data.length;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message;
+            console.error(errorMessage);
+            results.push({ product: data, status: "error", message: errorMessage });
+        } finally {
+            setProgress(100);
+        }
+        
         setLoading(false);
         setResults(results);
         setSuccessProducts(successCount);

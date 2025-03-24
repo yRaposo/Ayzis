@@ -39,6 +39,15 @@ export const getProductByName = async (nome) => {
     }
 }
 
+export const createProductInMass = async (data) => {
+    try {
+        const response = await ayzisAPI.post("/produtos/mass", data);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export const createProduct = async (data) => {
     try {
         const response = await ayzisAPI.post("/produtos", data);
