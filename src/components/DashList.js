@@ -15,6 +15,7 @@ import { getAllInfo, getInfoById, getInfoByProduto } from "@/service/dashboardSe
 import Product from "./Product";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { exportToExcel } from "@/utils/ExportToExcel";
+import ExportModal from "./ExportModal";
 
 export default function DashList() {
     const [products, setProducts] = useState([]);
@@ -125,18 +126,19 @@ export default function DashList() {
     }, []);
 
     const exportData = async () => {
-        const dataToExport = await Promise.all(Object.keys(infoMes).map(async (sku) => {
-            const product = await fetchProducts(sku);
-            return {
-                SKU: sku,
-                Marca: product?.marca || '',
-                Descricao: product?.nome || '',
-                ...infoMes[sku]
-            };
-        }));
+        // const dataToExport = await Promise.all(Object.keys(infoMes).map(async (sku) => {
+        //     const product = await fetchProducts(sku);
+        //     return {
+        //         SKU: sku,
+        //         Marca: product?.marca || '',
+        //         Descricao: product?.nome || '',
+        //         ...infoMes[sku]
+        //     };
+        // }));
 
-        console.log(dataToExport);
-        exportToExcel(dataToExport);
+        // console.log(dataToExport);
+        // exportToExcel(dataToExport);
+        setModal('export');
     };
 
     return (
@@ -181,7 +183,7 @@ export default function DashList() {
                 </div>
 
                 <div className="flex rounded-3xl mt-5 justify-around gap-3">
-                    <StylezedBtn props={{ icon: <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={exportData} />
+                    <StylezedBtn props={{ icon: <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={exportData} disable={infoMes !== undefined ? true : false}/>
                 </div>
 
             </div>
@@ -198,7 +200,7 @@ export default function DashList() {
                     </table>
                 </div>
             </div>
-
+            <ExportModal isOpen={modal === 'export'} onClose={() => setModal('')} data={infoMes} />
         </div>
     );
 }
