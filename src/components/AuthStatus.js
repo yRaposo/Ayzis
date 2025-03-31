@@ -11,7 +11,7 @@ export default function AuthStatus({ isError, token, code }) {
                 <FaExclamationCircle className="text-red-500" size={32} /> {/* Ícone de erro */}
             </div>
         );
-    } 
+    }
     // Verifica se o token está presente
     else if (token) {
         return (
@@ -20,7 +20,7 @@ export default function AuthStatus({ isError, token, code }) {
                 <FaCheckCircle className="text-green-500" size={32} /> {/* Ícone de sucesso */}
             </div>
         );
-    } 
+    }
     // Verifica se o código de validação está presente
     else if (code) {
         return (
@@ -29,7 +29,7 @@ export default function AuthStatus({ isError, token, code }) {
                 <CgSpinner className="animate-spin" size={32} /> {/* Ícone de carregamento */}
             </div>
         );
-    } 
+    }
     // Caso nenhuma das condições anteriores seja atendida
     else {
         return (
