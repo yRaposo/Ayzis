@@ -18,7 +18,6 @@ import { exportToExcel } from "@/utils/ExportToExcel";
 import ExportModal from "./ExportModal";
 
 export default function DashList() {
-    const [products, setProducts] = useState([]);
     const [infoMes, setInfoMes] = useState([]);
     const [page, setPage] = useState(0);
     const [sku, setSku] = useState('');
@@ -183,7 +182,7 @@ export default function DashList() {
                 </div>
 
                 <div className="flex rounded-3xl mt-5 justify-around gap-3">
-                    <StylezedBtn props={{ icon: <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={exportData} disable={infoMes !== undefined ? true : false}/>
+                    <StylezedBtn props={{ icon: Object.keys(infoMes).length === 0 ? <CgSpinner className="text-black animate-spin"/> : <RiFileExcel2Line />, text: 'Exportar para Excel' }} onClick={exportData} disable={Object.keys(infoMes).length === 0}/>
                 </div>
 
             </div>

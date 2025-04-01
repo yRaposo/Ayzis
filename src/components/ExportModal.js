@@ -4,10 +4,16 @@ import { HiDocumentDownload } from "react-icons/hi";
 import StylezedBtn from "./StylezedBtn";
 import { useCallback, useState } from "react";
 import { exportToExcel } from "@/utils/ExportToExcel";
+import { getProductById } from "@/service/productsService";
+import { CgSpinner } from "react-icons/cg";
 
 export default function ExportModal({ isOpen, onClose, data }) { // Obtemos os dados do mês
     const [progress, setProgress] = useState(0); // Estado para o progresso
     const [loading, setLoading] = useState(false); // Estado para indicar carregamento
+    const [error, setError] = useState(null); // Estado para erros
+    const [products, setProducts] = useState([]); // Estado para armazenar os produtos
+
+
 
     const fetchProducts = useCallback(async (id) => {
         try {
@@ -30,11 +36,21 @@ export default function ExportModal({ isOpen, onClose, data }) { // Obtemos os d
             skus.map(async (sku, index) => {
                 const product = await fetchProducts(sku);
                 setProgress(((index + 1) / total) * 100); // Atualiza o progresso
+
+                console.log("Estrutura",
+                    {
+                        ...data[sku],
+                        Descricao: product?.nome || '',
+                        Marca: product?.marca || '',
+                        SKU: sku,
+                    }
+                )
+
                 return {
-                    // SKU: sku,
-                    // Marca: product?.marca || '',
-                    // Descricao: product?.nome || '',
-                    ...data[sku]
+                    ...data[sku],
+                    Descricao: product?.nome || '',
+                    Marca: product?.marca || '',
+                    SKU: sku,
                 };
             })
         );
@@ -54,7 +70,6 @@ export default function ExportModal({ isOpen, onClose, data }) { // Obtemos os d
                 </div>
 
                 <div className="mt-4">
-                    <p className="text-lg">Gere um arquivo .xlsx</p>
                     <div className="mt-2 border-l-4 border-blue-500 p-2 rounded-r-xl bg-blue-50">
                         <p>• Os dados exportados são organizados em formato tabular.</p>
                         <p>• As vendas estão organizadas de acordo com o SKU por Mês.</p>
@@ -77,7 +92,7 @@ export default function ExportModal({ isOpen, onClose, data }) { // Obtemos os d
                 <div className="flex justify-between mt-4">
                     <StylezedBtn props={{ icon: <MdClose />, text: 'Cancelar' }} onClick={onClose} />
                     <StylezedBtn
-                        props={{ icon: <HiDocumentDownload />, text: 'Exportar' }}
+                        props={{ icon: loading ? <CgSpinner className="text-black animate-spin"/> : <HiDocumentDownload />, text: 'Exportar' }}
                         onClick={exportData}
                         disable={loading} // Desabilita o botão durante o carregamento
                     />

@@ -14,6 +14,10 @@ export function convertDateString(dateString) {
         "dezembro": "12"
     };
 
+    if (typeof dateString !== 'string') {
+        throw new Error("Data no formato inválido: entrada não é uma string");
+    }
+
     const regex = /(\d{1,2}) de (\w+) de (\d{4}) (\d{2}):(\d{2}) hs\./;
     const match = dateString.match(regex);
 

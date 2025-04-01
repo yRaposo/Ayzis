@@ -13,9 +13,6 @@ export const exportToExcel = (data) => {
 
     // Define columns
     const columns = [
-        { header: 'SKU', key: 'SKU', width: 10, style: { font: { bold: true } } },
-        { header: 'Fornecedor', key: 'Fornecedor', width: 15, style: { font: { bold: true } } },
-        { header: 'Descrição', key: 'Descrição', width: 30, style: { font: { bold: true } } },
         ...sortedMonths.map(month => ({ header: month, key: month, width: 15, style: { font: { bold: true } } }))
     ];
     sheet.columns = columns;
