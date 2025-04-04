@@ -5,10 +5,10 @@ import Papa from 'papaparse';
 import { IoIosWarning, IoIosDocument, IoMdCloudUpload } from 'react-icons/io';
 import { FaPlusCircle } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
-import { MdCheckCircle, MdError, MdClose, MdLaunch } from 'react-icons/md';
+import { MdClose, MdLaunch } from 'react-icons/md';
 import StylezedBtn from '@/components/StylezedBtn';
-import { convertDateString } from '@/utils/dataConverter';
-import { createVenda, createVendaInMass } from '@/service/vendasService';
+import { convertDateDate, convertDateString } from '@/utils/dataConverter';
+import { createVendaInMass } from '@/service/vendasService';
 
 export default function VendaMassModal({ isOpen, onClose }) {
     const [isError, setIsError] = useState(false);
@@ -20,7 +20,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
     const [fileError, setFileError] = useState('');
     const [fileName, setFileName] = useState('');
     const [progress, setProgress] = useState(0);
-    const [totalVendas, setTotalVendas] = useState(0);
+    const [total, setTotalVendas] = useState(0);
     const [successVendas, setSuccessVendas] = useState(0);
     const [errorVendas, setErrorVendas] = useState([]);
     const [serverResponses, setServerResponses] = useState([]);
@@ -84,7 +84,6 @@ export default function VendaMassModal({ isOpen, onClose }) {
             }
 
             console.log(venda?.DataDaVenda);
-            console.log(convertDateString(venda?.DataDaVenda));
             console.log('iniciando iteração sobre a venda: ' + venda?.NDeVenda);
 
             let data;
@@ -141,7 +140,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
 
                         data = {
                             id: nextVenda?.NDeVenda?.toUpperCase() || '',
-                            dataVenda: convertDateString(nextVenda?.DataDaVenda) || '',
+                            dataVenda: selectOrigem === 'ML' ? convertDateString(venda?.DataDaVenda) || '' : convertDateDate(venda?.DataDaVenda) || '',
                             status: nextVenda?.Estado || '',
                             quantidade: parseInt(nextVenda?.Unidades?.trim() || "0"),
                             valorTotal: parseFloat(nextVenda?.Total?.trim() || "0"),
@@ -156,7 +155,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
             } else {
                 data = {
                     id: venda?.NDeVenda?.toUpperCase() || '',
-                    dataVenda: convertDateString(venda?.DataDaVenda) || '',
+                    dataVenda: selectOrigem === 'ML' ? convertDateString(venda?.DataDaVenda) : convertDateDate(venda?.DataDaVenda),
                     status: venda?.Estado || '',
                     quantidade: parseInt(venda?.Unidades?.trim() || "0"),
                     valorTotal: parseFloat(venda?.Total?.trim() || "0"),
@@ -173,17 +172,16 @@ export default function VendaMassModal({ isOpen, onClose }) {
             const response = await createVendaInMass(vendasToSend);
             response.forEach((res, index) => {
                 if (res.status === 'success') {
-                    results.push({ venda: vendas[index], status: "success", response: res });
+                    results.push(res);
                     vendas[index].status = 'success';
                     successCount++;
                 } else {
-                    const errorMessage = res.message || 'Erro desconhecido';
+                    const errorMessage = res || 'Erro desconhecido';
                     results.push({ venda: vendas[index], status: "error", message: errorMessage });
                     vendas[index].status = 'error';
                     vendas[index].error = errorMessage;
-                    setErrorVendas([...errorVendas, vendas[index]]);
-                    console.error(errorMessage);
-                    console.error(vendas[index]);
+                    console.error("erro: ", errorMessage);
+                    console.error("erro: ", vendas[index]);
                 }
             });
         } catch (error) {
@@ -193,6 +191,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
             setLoading(false);
             console.log(results);
             console.log('Vendas com erro: ', errorVendas);
+            setErrorVendas(results);
         }
     };
 
@@ -207,7 +206,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                     <h1 className="text-2xl font-bold mt-2">Adicionar Vendas em Massa</h1>
                 </div>
 
-                <div  {...getRootProps()} className={`flex border-2 border-gray-300 rounded-xl p-4 cursor-pointer w-full h-52 justify-center items-center hover:bg-gray-100 
+                <div  {...getRootProps()} className={`flex border-2 border-gray-300 rounded-xl p-4 cursor-pointer w-full h-52 justify-center items-center hover:bg-gray-100
                 ${fileError
                         ? ('border-red-800 bg-red-200')
                         : file && file.length > 0
@@ -248,7 +247,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                     }
                 </div>
 
-                <div className="mt-4 overflow-x-auto">
+                {/* <div className="mt-4 overflow-x-auto">
                     {vendas.length > 0 && (
                         <table className="min-w-full bg-white">
                             <thead>
@@ -280,7 +279,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                             </tbody>
                         </table>
                     )}
-                </div>
+                </div> */}
 
                 <div className='mt-4'>
                     <label className="text-sm font-bold">Origem</label>
@@ -293,7 +292,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
 
                 {loading && (
                     <div className="mt-4">
-                        <p>Carregando...</p>
+                        <p>Carregando... {progress}%</p>
                         <div className="w-full bg-gray-200 rounded-full h-4">
                             <div className="bg-blue-600 h-4 rounded-full animate-pulse" style={{ width: `${progress}%` }}></div>
                         </div>
@@ -315,24 +314,26 @@ export default function VendaMassModal({ isOpen, onClose }) {
                         setTotalVendas(0);
                         setProgress(0);
                         setServerResponses([]);
+                        setOrigem('ML');
                         onClose();
                     }} />
                     <StylezedBtn props={{ icon: loading ? <CgSpinner className="text-black animate-spin" /> : <MdLaunch />, text: 'Salvar' }} disable={loading} onClick={handleConfirm} />
                 </div>
 
-                <div className="mt-4"></div>
-                {isError && (
-                    <div className="bg-red-200 text-red-800 p-2 rounded-xl">
-                        {errorType}
-                    </div>
-                )}
-                {errorVendas.map((venda, index) => (
-                    <div key={index} className="mt-2 border-l-4 border-red-500 p-2 rounded-r-xl bg-red-50">
-                        <p>Venda: {venda.idVenda}</p>
-                        <p>Status: {venda.status}</p>
-                        {venda.status === 'error' && <p>Erro: {venda.errorMessage}</p>}
-                    </div>
-                ))}
+                <div className="mt-4">
+                    {isError && (
+                        <div className="bg-red-200 text-red-800 p-2 rounded-xl">
+                            {errorType}
+                        </div>
+                    )}
+                    {errorVendas.map((errorVenda, index) => (
+                        <div key={index} className="mt-2 border-l-4 border-red-500 p-2 rounded-r-xl bg-red-50">
+                            {/* <p>Venda: {errorVenda?.message?.venda?.id || 'N/A'}</p>
+                            <p>Erro: {errorVenda?.message?.mensagem || 'Erro desconhecido'}</p> */}
+                            <p>{errorVenda?.message?.venda?.produto?.id}</p>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

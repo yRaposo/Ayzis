@@ -1,4 +1,5 @@
 export function convertDateString(dateString) {
+    console.log("conversão de texto")
     const months = {
         "janeiro": "01",
         "fevereiro": "02",
@@ -32,4 +33,24 @@ export function convertDateString(dateString) {
     const minute = match[5].padStart(2, '0');
 
     return `${year}-${month}-${day}T${hour}:${minute}:00`;
+}
+
+export function convertDateDate(dateDate) {
+    console.log("conversão de data")
+    if (typeof dateDate !== 'string') {
+        throw new Error("Data no formato inválido: entrada não é uma string");
+    }
+
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const match = dateDate.match(regex);
+
+    if (!match) {
+        throw new Error("Data no formato inválido");
+    }
+
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10); // Ajustar para formato ISO 8601 (1-based)
+    const year = parseInt(match[3], 10);
+
+    return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T00:00:00`;
 }
