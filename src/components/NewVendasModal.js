@@ -66,7 +66,7 @@ export default function NewVendaModal({ isOpen, onClose }) {
             createVenda(data)
                 .then(() => {
                     onClose();
-                    
+
                 })
                 .catch((error) => {
                     setIsError(true);

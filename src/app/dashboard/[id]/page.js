@@ -12,6 +12,7 @@ import DeleteProdutoModal from '@/components/DeleteProdutoModal';
 import CompModal from '@/components/CompModal';
 import { getInfoByProduto } from '@/service/dashboardService';
 import Grafico from '@/components/Grafico';
+import { getVendaByInfoMes } from '@/service/vendasService';
 
 export default function ProductPage() {
     const { id } = useParams();
@@ -20,7 +21,9 @@ export default function ProductPage() {
     const [modal, setModal] = useState('');
     const [loading, setLoading] = useState(true);
     const [infoMes, setInfoMes] = useState([]);
+    const [infoMesBruto, setInfoMesBruto] = useState([]);
     const [chartData, setChartData] = useState([]);
+    const [vendas, setVendas] = useState([]);
 
     const fetchProductById = useCallback(async () => {
         try {
@@ -40,6 +43,8 @@ export default function ProductPage() {
             const infoResponses = await getInfoByProduto(decodeURIComponent(id));
             const organizedData = {};
             const chartDataTemp = [];
+
+            setInfoMesBruto(infoResponses);
 
             infoResponses.forEach(info => {
                 const sku = info.produto.id;
@@ -74,6 +79,16 @@ export default function ProductPage() {
         }
     }, [id]);
 
+    const fetchVendasByInfoMes = useCallback(async () => {
+        try {
+            const vendas = await getVendaByInfoMes(infoMesBruto);
+            setVendas(vendas);
+            console.log('Vendas: ', vendas);
+        } catch (error) {
+            console.error('Erro ao obter vendas por infoMes:', error);
+        }
+    }, [infoMesBruto]);
+
     useEffect(() => {
         fetchProductById();
     }, [fetchProductById]);
@@ -81,6 +96,14 @@ export default function ProductPage() {
     useEffect(() => {
         fetchInfoMesByProduct();
     }, [fetchInfoMesByProduct]);
+
+    useEffect(() => {
+
+        infoMesBruto.forEach((info) => {
+            getVendaByInfoMes(info.id);
+        })
+
+    }, [fetchVendasByInfoMes, infoMesBruto]);
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
@@ -108,12 +131,11 @@ export default function ProductPage() {
                     </div>
                     <h1 className="text-lg font-bold">{produto.nome}</h1>
                 </div>
-            <div className="my-4">
-                <h2 className="text-xl font-bold">Gráficos de InfoMes</h2>
-                <Grafico data={chartData} />
+                <div className="my-4">
+                    <h2 className="text-xl font-bold">Gráficos de InfoMes</h2>
+                    <Grafico data={chartData} />
+                </div>
             </div>
-            </div>
-
 
             <div className="my-4 flex flex-col justify-between align-middle border-gray-300 rounded-xl p-4 border-2">
                 <div className="flex flex-col justify-between align-middle my-2 md:flex-row md:justify-between md:gap-4">
@@ -160,6 +182,58 @@ export default function ProductPage() {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div className="my-4 flex flex-col justify-between align-middle border-gray-300 rounded-xl p-4 border-2">
+                <h1 className="text-xl font-bold mt-2 mb-4">Vendas Relacionadas</h1>
+                <div className="flex flex-col border-2 border-gray-300 rounded-xl px-2 mt-1 items-center w-full">
+                    <table className="min-w-full divide-y divide-gray-300">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Venda</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-300">
+                            {Array.isArray(vendas) && vendas.length > 0 ? (
+                                vendas.map((venda) => (
+                                    venda && venda.id ? (
+                                        <tr
+                                            key={venda.id}
+                                            className="cursor-pointer hover:bg-black hover:text-white"
+                                            onClick={() => router.push(`/database/vendas/${encodeURIComponent(venda.id)}`)}
+                                        >
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">
+                                                <button
+                                                    className="w-full text-left"
+                                                    onClick={e => {
+                                                        e.stopPropagation();
+                                                        router.push(`/database/vendas/${encodeURIComponent(venda.id)}`);
+                                                    }}
+                                                >
+                                                    {venda.id}
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.dataVenda}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.status}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.quantidade}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">R${venda.valorTotal}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.produto?.id}</td>
+                                        </tr>
+                                    ) : null
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">Nenhuma venda encontrada.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

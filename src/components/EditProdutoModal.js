@@ -8,6 +8,7 @@ import { RiSaveFill } from "react-icons/ri";
 export default function EditModal({ isOpen, onClose, produto }) {
     const [isError, setIsError] = useState(false);
     const [errorType, setErrorType] = useState('');
+    const [idProduto, setIdProduto] = useState('');
     const [nome, setNome] = useState('');
     const [descricao, setDescricao] = useState('');
     const [marca, setMarca] = useState('');
@@ -25,6 +26,7 @@ export default function EditModal({ isOpen, onClose, produto }) {
     const handleSubmit = () => {
         const data = {
             id: produto.id,
+            newId: idProduto || produto.id,
             nome: nome || produto.nome,
             descricao: descricao || produto.descricao,
             marca: marca || produto.marca,
@@ -59,6 +61,10 @@ export default function EditModal({ isOpen, onClose, produto }) {
                 </div>
 
                 <div className="mt-4">
+
+                    <label className="text-sm">ID</label>
+                    <input type="text" placeholder={produto.id} className="w-full p-2 mt-2 mb-4 border border-gray-300 rounded-full" value={idProduto} onChange={(e) => { setIdProduto(e.target.value) }} />
+
                     <label className="text-sm">Nome</label>
                     <input type="text" placeholder={produto.nome} className="w-full p-2 mt-2 mb-4 border border-gray-300 rounded-full" value={nome} onChange={(e) => { setNome(e.target.value) }} />
 

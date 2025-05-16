@@ -66,6 +66,15 @@ export const getVendaByStatus = async (status) => {
     }
 }
 
+export const getVendaByInfoMes = async (id) => {
+    try {
+        const response = await ayzisAPI.get(`/vendas/infomes`, { params: { id } });
+        return response.data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export const createVendaInMass = async (data) => {
     try {
         const response = await ayzisAPI.post("/vendas/mass", data);
