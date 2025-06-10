@@ -172,7 +172,7 @@ export default function CompModal({ isOpen, onClose, product, router }) {
                         <label className="text-md font-bold">Adicionar Componente</label>
                         <input type="text" className="flex w-full justify-center border px-4 py-2 border-gray-300 rounded-full" value={search} placeholder="Digite o SKU do produto" onChange={(e) => setSearch(e.target.value.toUpperCase())} onFocus={() => setSearchIsActive(true)} />
                     </div>
-                    {search !== '' || searchIsActive && (
+                    {searchIsActive && (
                         <div className="absolute right-auto mt-2 w-56 md:w-96 mx-2 bg-white border border-gray-300 rounded-md shadow-lg" onMouseOver={() => setSearchIsActive(true)} onMouseLeave={() => setSearchIsActive(false)}>
                             {isSearching ? (
                                 <div className="flex justify-center items-center p-2">
