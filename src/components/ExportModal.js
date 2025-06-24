@@ -1,63 +1,75 @@
 'use client'
-import { MdClose, MdLaunch } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 import { HiDocumentDownload } from "react-icons/hi";
 import StylezedBtn from "./StylezedBtn";
 import { useCallback, useState } from "react";
 import { exportToExcel } from "@/utils/ExportToExcel";
 import { getProductById } from "@/service/productsService";
+import { getSomaProdutosVendidos } from "@/service/estatisticasService";
 import { CgSpinner } from "react-icons/cg";
 
-export default function ExportModal({ isOpen, onClose, data }) { // Obtemos os dados do mês
-    const [progress, setProgress] = useState(0); // Estado para o progresso
-    const [loading, setLoading] = useState(false); // Estado para indicar carregamento
-    const [error, setError] = useState(null); // Estado para erros
-    const [products, setProducts] = useState([]); // Estado para armazenar os produtos
+export default function ExportModal({ isOpen, onClose }) {
+    const [progress, setProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-
-
-    const fetchProducts = useCallback(async (id) => {
+    // Busca todos os dados de vendas por produto/mês
+    const fetchVendasPorProduto = useCallback(async () => {
         try {
-            const response = await getProductById(id);
-            console.log(response)
+            const response = await getSomaProdutosVendidos();
             return response;
         } catch (error) {
-            console.error(error);
+            setError("Erro ao buscar dados de vendas.");
+            return {};
+        }
+    }, []);
+
+    // Busca dados do produto (nome, marca, etc)
+    const fetchProduct = useCallback(async (id) => {
+        try {
+            const response = await getProductById(id);
+            return response;
+        } catch (error) {
+            return {};
         }
     }, []);
 
     const exportData = async () => {
-        setLoading(true); // Inicia o carregamento
-        setProgress(0); // Reseta o progresso
+        setLoading(true);
+        setProgress(0);
+        setError(null);
 
-        const skus = Object.keys(data);
+        // Busca os dados de vendas por produto/mês
+        const vendasPorProduto = await fetchVendasPorProduto();
+        const skus = Object.keys(vendasPorProduto);
         const total = skus.length;
 
-        const dataToExport = await Promise.all(
-            skus.map(async (sku, index) => {
-                const product = await fetchProducts(sku);
-                setProgress(((index + 1) / total) * 100); // Atualiza o progresso
+        // Monta os dados para exportação
+        const dataToExport = [];
+        for (let i = 0; i < skus.length; i++) {
+            const sku = skus[i];
+            const produtoInfo = await fetchProduct(sku);
 
-                console.log("Estrutura",
-                    {
-                        ...data[sku],
-                        Descricao: product?.nome || '',
-                        Marca: product?.marca || '',
+            // vendasPorProduto[sku] pode conter vários meses, então exporta cada mês como linha
+            Object.entries(vendasPorProduto[sku]).forEach(([key, value]) => {
+                // Só pega as chaves de quantidade (ex: "2024-05_qtd")
+                if (key.endsWith('_qtd')) {
+                    const mes = key.replace('_qtd', '');
+                    dataToExport.push({
                         SKU: sku,
-                    }
-                )
+                        Descricao: produtoInfo?.nome || '',
+                        Marca: produtoInfo?.marca || '',
+                        Mes: mes,
+                        Quantidade: value
+                    });
+                }
+            });
 
-                return {
-                    ...data[sku],
-                    Descricao: product?.nome || '',
-                    Marca: product?.marca || '',
-                    SKU: sku,
-                };
-            })
-        );
+            setProgress(((i + 1) / total) * 100);
+        }
 
-        console.log(dataToExport);
         exportToExcel(dataToExport);
-        setLoading(false); // Finaliza o carregamento
+        setLoading(false);
     };
 
     if (!isOpen) return null;
@@ -89,15 +101,18 @@ export default function ExportModal({ isOpen, onClose, data }) { // Obtemos os d
                     </div>
                 )}
 
+                {error && (
+                    <div className="mt-4 text-red-600">{error}</div>
+                )}
+
                 <div className="flex justify-between mt-4">
                     <StylezedBtn props={{ icon: <MdClose />, text: 'Cancelar' }} onClick={onClose} />
                     <StylezedBtn
                         props={{ icon: loading ? <CgSpinner className="text-black animate-spin"/> : <HiDocumentDownload />, text: 'Exportar' }}
                         onClick={exportData}
-                        disable={loading} // Desabilita o botão durante o carregamento
+                        disable={loading}
                     />
                 </div>
-
             </div>
         </div>
     )

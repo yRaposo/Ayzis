@@ -2,7 +2,7 @@
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import { MdFilterAlt, MdOutlineClear } from "react-icons/md";
 import { useState, useEffect, useContext } from "react";
-import { getAllVendas, getVendasByProduto } from "@/service/vendasService";
+import { getAllVendas, getVendaByData, getVendaById, getVendaByMes, getVendasByProduto, getVendasByProdutoMes } from "@/service/vendasService";
 import { truncateText } from "@/utils/truncateText";
 import { useRouter } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
@@ -17,6 +17,7 @@ export default function VendasList() {
     const [vendas, setVendas] = useState([]);
     const [page, setPage] = useState(0);
     const [sku, setSku] = useState('');
+    const [date, setDate] = useState('');
     const [isInputActive, setIsInputActive] = useState(false);
     const [isempty, setIsEmpty] = useState(true);
     const [isSearching, setIsSearching] = useState(false);
@@ -24,32 +25,83 @@ export default function VendasList() {
     const router = useRouter();
 
     useEffect(() => {
-        if (sku === '') {
+        // Se ambos date e sku estão preenchidos, busca por produto e mês
+        if (date && sku) {
+            setIsSearching(true);
+            getVendasByProdutoMes(sku.toUpperCase(), date).then((response) => {
+                if (Array.isArray(response) && response.length > 0) {
+                    setVendas(response);
+                } else if (response && response.id) {
+                    setVendas([response]);
+                } else {
+                    setVendas([]);
+                }
+                setIsSearching(false);
+            }).catch((error) => {
+                console.error(error);
+                setVendas([]);
+                setIsSearching(false);
+            });
+        }
+        // Se apenas date está preenchido, filtra vendas por data
+        else if (date) {
+            setIsSearching(true);
+            getVendaByMes(date).then((response) => {
+                if (Array.isArray(response) && response.length > 0) {
+                    setVendas(response);
+                } else if (response && response.id) {
+                    setVendas([response]);
+                } else {
+                    setVendas([]);
+                }
+                setIsSearching(false);
+            }).catch((error) => {
+                console.error(error);
+                setVendas([]);
+                setIsSearching(false);
+            });
+        }
+        // Se sku está vazio, busca todas as vendas paginadas
+        else if (sku === '') {
             getAllVendas(page, 10).then((response) => {
                 if (Array.isArray(response)) {
                     setVendas(response);
                 } else {
                     setVendas([]);
                 }
-                console.log(response);
             }).catch((error) => {
                 console.error(error);
-            })
-        } else {
+            });
+        }
+        // Se apenas sku está preenchido, busca por produto ou id
+        else {
             setIsSearching(true);
             getVendasByProduto(sku.toUpperCase()).then((response) => {
-                if (Array.isArray(response)) {
+                if (Array.isArray(response) && response.length > 0) {
                     setVendas(response);
                 } else {
-                    setVendas([]);
+                    // Se não encontrou pelo SKU, tenta buscar pelo ID da venda
+                    getVendaById(sku).then((venda) => {
+                        if (venda && venda.id) {
+                            setVendas([venda]);
+                        } else {
+                            setVendas([]);
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                        setVendas([]);
+                    }).finally(() => {
+                        setIsSearching(false);
+                    });
+                    return;
                 }
+                setIsSearching(false);
             }).catch((error) => {
                 console.error(error);
-            }).finally(() => {
                 setIsSearching(false);
-            })
+            });
         }
-    }, [sku, page]);
+    }, [sku, page, date]);
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
@@ -111,6 +163,30 @@ export default function VendasList() {
                         }} className="text-white rounded-xl align-middle items-center">
                             <IoMdArrowDropright color="#000" size="20" />
                         </button>
+                    </div>
+
+                    <div className="flex border-2 border-gray-300 rounded-3xl py-2 px-4 mt-5 justify-around gap-3">
+                        <input
+                            type="month"
+                            className="outline-none"
+                            value={date}
+                            onChange={e => {
+                                setDate(e.target.value);
+                                setPage(0);
+                            }}
+                        />
+                        {date ? (
+                            <button
+                                className="text-white rounded-xl align-middle items-center"
+                                onClick={() => {
+                                    setDate('');
+                                    setPage(0);
+                                }}
+                                title="Limpar"
+                            >
+                                <MdOutlineClear color="#000" size="20" />
+                            </button>
+                        ) : null}
                     </div>
                 </div>
 

@@ -1,36 +1,25 @@
 'use client'
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { MdArrowBackIos, MdEdit } from "react-icons/md";
-import { TbTrashXFilled } from "react-icons/tb";
-
-import StylezedBtn from '@/components/StylezedBtn';
-import Product from '@/components/Product';
 import { getProductById } from '@/service/productsService';
-import EditModal from '@/components/EditProdutoModal';
-import DeleteProdutoModal from '@/components/DeleteProdutoModal';
-import CompModal from '@/components/CompModal';
-import { getInfoByProduto } from '@/service/dashboardService';
+import { getSomaProdutosVendidosPorMes } from '@/service/estatisticasService';
+import { getVendasByProduto } from '@/service/vendasService';
 import Grafico from '@/components/Grafico';
-import { getVendaByInfoMes } from '@/service/vendasService';
 
 export default function ProductPage() {
     const { id } = useParams();
     const router = useRouter();
     const [produto, setProduto] = useState(null);
-    const [modal, setModal] = useState('');
     const [loading, setLoading] = useState(true);
-    const [infoMes, setInfoMes] = useState([]);
-    const [infoMesBruto, setInfoMesBruto] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [vendas, setVendas] = useState([]);
 
+    // Busca produto
     const fetchProductById = useCallback(async () => {
         try {
             const decodedId = decodeURIComponent(id);
             const data = await getProductById(decodedId);
             setProduto(data);
-            console.log('Produto: ', data);
         } catch (error) {
             console.error('Erro ao obter o produto por id:', error);
         } finally {
@@ -38,72 +27,44 @@ export default function ProductPage() {
         }
     }, [id]);
 
-    const fetchInfoMesByProduct = useCallback(async () => {
+    // Busca estatísticas de vendas por mês para o produto
+    const fetchEstatisticasProduto = useCallback(async () => {
         try {
-            const infoResponses = await getInfoByProduto(decodeURIComponent(id));
-            const organizedData = {};
-            const chartDataTemp = [];
-
-            setInfoMesBruto(infoResponses);
-
-            infoResponses.forEach(info => {
-                const sku = info.produto.id;
-                const monthYear = info.monthYear.substring(0, 7); // "YYYY-MM"
-
-                if (!organizedData[sku]) {
-                    organizedData[sku] = {};
-                }
-
-                organizedData[sku][monthYear] = info;
-
-                chartDataTemp.push({
-                    monthYear,
-                    Total_Concluido: info.total,
-                    canceladoComponente: info.canceladoComponente,
-                    canceladoIndividual: info.canceladoIndividual,
-                    Total_Cancelado: info.canceladoTotal,
-                    Componentes_Concluidos: info.componente,
-                    Diretas_Concluidas: info.direta,
-                    Individuais_Concluidas: info.individual,
-                    pendenteComponente: info.pendenteComponente,
-                    pendenteIndividual: info.pendenteIndividual,
-                    Total_Pendente: info.pendenteTotal,
-                });
-            });
-
-            setInfoMes(organizedData);
+            const decodedId = decodeURIComponent(id);
+            const stats = await getSomaProdutosVendidosPorMes(decodedId);
+            // stats é um objeto { "2024-01": 10, "2024-02": 20, ... }
+            const chartDataTemp = Object.entries(stats).map(([monthYear, quantidade]) => ({
+                monthYear,
+                Quantidade: quantidade
+            }));
             setChartData(chartDataTemp);
-            console.log(organizedData);
         } catch (error) {
-            console.error(error);
+            console.error('Erro ao obter estatísticas do produto:', error);
         }
     }, [id]);
 
-    const fetchVendasByInfoMes = useCallback(async () => {
+    // Busca vendas relacionadas ao produto
+    const fetchVendasByProduto = useCallback(async () => {
         try {
-            const vendas = await getVendaByInfoMes(infoMesBruto);
+            const decodedId = decodeURIComponent(id);
+            const vendas = await getVendasByProduto(decodedId);
             setVendas(vendas);
-            console.log('Vendas: ', vendas);
         } catch (error) {
-            console.error('Erro ao obter vendas por infoMes:', error);
+            console.error('Erro ao obter vendas por produto:', error);
         }
-    }, [infoMesBruto]);
+    }, [id]);
 
     useEffect(() => {
         fetchProductById();
     }, [fetchProductById]);
 
     useEffect(() => {
-        fetchInfoMesByProduct();
-    }, [fetchInfoMesByProduct]);
+        fetchEstatisticasProduto();
+    }, [fetchEstatisticasProduto]);
 
     useEffect(() => {
-
-        infoMesBruto.forEach((info) => {
-            getVendaByInfoMes(info.id);
-        })
-
-    }, [fetchVendasByInfoMes, infoMesBruto]);
+        fetchVendasByProduto();
+    }, [fetchVendasByProduto]);
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
@@ -122,6 +83,11 @@ export default function ProductPage() {
         return <div>Produto não encontrado</div>;
     }
 
+    // Ordena as vendas da mais nova para a mais velha
+    const vendasOrdenadas = Array.isArray(vendas)
+        ? [...vendas].sort((a, b) => new Date(b.dataVenda) - new Date(a.dataVenda))
+        : [];
+
     return (
         <div className="m-4">
             <div className="my-4 flex flex-col justify-between align-middle border-gray-300 rounded-xl p-4 border-2">
@@ -132,7 +98,7 @@ export default function ProductPage() {
                     <h1 className="text-lg font-bold">{produto.nome}</h1>
                 </div>
                 <div className="my-4">
-                    <h2 className="text-xl font-bold">Gráficos de InfoMes</h2>
+                    <h2 className="text-xl font-bold">Gráfico de Quantidade Vendida por Mês</h2>
                     <Grafico data={chartData} />
                 </div>
             </div>
@@ -200,8 +166,8 @@ export default function ProductPage() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-300">
-                            {Array.isArray(vendas) && vendas.length > 0 ? (
-                                vendas.map((venda) => (
+                            {vendasOrdenadas.length > 0 ? (
+                                vendasOrdenadas.map((venda) => (
                                     venda && venda.id ? (
                                         <tr
                                             key={venda.id}

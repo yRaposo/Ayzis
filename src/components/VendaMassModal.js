@@ -153,12 +153,20 @@ export default function VendaMassModal({ isOpen, onClose }) {
                     }
                 }
             } else {
+                // Função utilitária para converter string de número com vírgula para ponto
+                const parseNumber = (value) => {
+                    if (typeof value === 'string') {
+                        return parseFloat(value.replace(',', '.').trim());
+                    }
+                    return typeof value === 'number' ? value : 0;
+                };
+
                 data = {
                     id: venda?.NDeVenda?.toUpperCase() || '',
                     dataVenda: selectOrigem === 'ML' ? convertDateString(venda?.DataDaVenda) : convertDateDate(venda?.DataDaVenda),
                     status: venda?.Estado || '',
-                    quantidade: parseInt(venda?.Unidades?.trim() || "0"),
-                    valorTotal: parseFloat(venda?.Total?.trim() || "0"),
+                    quantidade: parseInt((venda?.Unidades || "0").toString().replace(',', '.').trim()),
+                    valorTotal: parseNumber(venda?.Total),
                     origem: selectOrigem,
                     produto: {
                         id: venda?.SKU?.toUpperCase() || '',

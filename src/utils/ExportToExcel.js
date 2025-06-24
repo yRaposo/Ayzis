@@ -4,35 +4,27 @@ export const exportToExcel = (data) => {
     const workbook = new exceljs.Workbook();
     const sheet = workbook.addWorksheet('Sheet 1');
 
-    // Get all unique months
-    const months = new Set();
-    data.forEach(info => {
-        Object.keys(info).forEach(month => months.add(month));
-    });
-    const sortedMonths = Array.from(months).sort();
-
-    // Define columns
-    const columns = [
-        ...sortedMonths.map(month => ({ header: month, key: month, width: 15, style: { font: { bold: true } } }))
+    // Define columns fixas conforme o que está sendo exportado
+    sheet.columns = [
+        { header: 'SKU', key: 'SKU', width: 20 },
+        { header: 'Descrição', key: 'Descricao', width: 30 },
+        { header: 'Marca', key: 'Marca', width: 20 },
+        { header: 'Mês', key: 'Mes', width: 15 },
+        { header: 'Quantidade', key: 'Quantidade', width: 15 }
     ];
-    sheet.columns = columns;
 
-    // Add rows
+    // Adiciona as linhas
     data.forEach(item => {
-        console.log("Objeto:",item);
-        const row = {
+        sheet.addRow({
             SKU: item.SKU,
-            Fornecedor: item.Marca,
-            Descrição: item.Descricao,
-        };
-        sortedMonths.forEach(month => {
-            row[month] = item[month] || 0;
+            Descricao: item.Descricao,
+            Marca: item.Marca,
+            Mes: item.Mes,
+            Quantidade: item.Quantidade
         });
-        console.log("Linha:",row);
-        sheet.addRow(row);
     });
 
-    // Save the workbook
+    // Salva o arquivo
     workbook.xlsx.writeBuffer().then(buffer => {
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const link = document.createElement('a');

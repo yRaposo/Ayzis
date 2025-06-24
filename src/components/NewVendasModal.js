@@ -11,7 +11,7 @@ export default function NewVendaModal({ isOpen, onClose }) {
     const [errorType, setErrorType] = useState('');
     const [idVenda, setIdVenda] = useState('');
     const [dataVenda, setDataVenda] = useState('');
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState('Entregue');
     const [quantidade, setQuantidade] = useState('');
     const [valorTotal, setValorTotal] = useState('');
     const [produto, setProduto] = useState(null);
@@ -46,7 +46,7 @@ export default function NewVendaModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
-        if (!idVenda || !dataVenda || !status || !quantidade || !valorTotal || !produto) {
+        if (!dataVenda || !status || !quantidade || !valorTotal || !produto) {
             setIsError(true);
             setErrorType('Preencha todos os campos obrigatórios');
         } else {
@@ -66,6 +66,14 @@ export default function NewVendaModal({ isOpen, onClose }) {
             createVenda(data)
                 .then(() => {
                     onClose();
+                    setIdVenda('');
+                    setDataVenda('');
+                    setStatus('Entregue');
+                    setQuantidade('');
+                    setValorTotal('');
+                    setProduto(null);
+                    setSearch('');
+                    setSearchIsActive(false);
 
                 })
                 .catch((error) => {
@@ -95,10 +103,11 @@ export default function NewVendaModal({ isOpen, onClose }) {
                     <label className="text-sm">Quantidade *</label>
                     <input type="number" className="w-full p-2 mt-2 mb-4 border border-gray-300 rounded-full" value={quantidade} onChange={(e) => { setQuantidade(e.target.value) }} />
 
-                    <label className="text-sm">Produto ID *</label>
-                    <input type="text" className="w-full p-2 mt-2 mb-4 border border-gray-300 rounded-full" value={produto?.id || ''} onChange={(e) => { setSearch(e.target.value) }} onFocus={() => setSearchIsActive(true)} />
-
-                    {search !== '' || searchIsActive && (
+                    <div className="flex flex-col justify-start w-full mb-4">
+                        <label className="text-sm">Produto*</label>
+                        <input type="text" className="flex w-full justify-center border px-4 py-2 border-gray-300 rounded-full mt-2" value={search} placeholder="Digite o SKU do produto" onChange={(e) => setSearch(e.target.value.toUpperCase())} onFocus={() => setSearchIsActive(true)} />
+                    </div>
+                    {searchIsActive && (
                         <div className="absolute right-auto mt-2 w-56 md:w-96 mx-2 bg-white border border-gray-300 rounded-md shadow-lg" onMouseOver={() => setSearchIsActive(true)} onMouseLeave={() => setSearchIsActive(false)}>
                             {isSearching ? (
                                 <div className="flex justify-center items-center p-2">
@@ -108,8 +117,7 @@ export default function NewVendaModal({ isOpen, onClose }) {
                                 products.map((item, index) => (
                                     <button key={index} className="flex flex-row justify-between items-center border-b border-gray-300 p-2 text-black hover:bg-black hover:text-white cursor-pointer gap-4" onClick={() => {
                                         setProduto(item);
-                                        setValorTotal(item.preco * quantidade);
-                                        setSearchIsActive(false);
+                                        setSearch(item.id);
                                     }}>
                                         <h1 className="font-bold">{item?.id}</h1>
                                         <p className="text-sm font-light">{item?.nome}</p>
@@ -125,7 +133,17 @@ export default function NewVendaModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="flex justify-between mt-4">
-                    <StylezedBtn props={{ icon: <MdClose />, text: 'Cancelar' }} onClick={onClose} />
+                    <StylezedBtn props={{ icon: <MdClose />, text: 'Cancelar' }} onClick={() => {
+                        onClose()
+                        setIdVenda('');
+                        setDataVenda('');
+                        setStatus('Entregue');
+                        setQuantidade('');
+                        setValorTotal('');
+                        setProduto(null);
+                        setSearch('');
+                        setSearchIsActive(false);
+                    }} />
                     <StylezedBtn props={{ icon: <MdLaunch />, text: 'Salvar' }} onClick={() => handleSubmit()} />
                 </div>
 
