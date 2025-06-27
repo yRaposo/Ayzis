@@ -14,8 +14,8 @@ import CompMassModal from "./CompMassModal";
 import { getAllInfo, getInfoById, getInfoByProduto } from "@/service/dashboardService";
 import Product from "./Product";
 import { RiFileExcel2Line } from "react-icons/ri";
-import { exportToExcel } from "@/utils/ExportToExcel";
-import ExportModal from "./ExportModal";
+import { exportQTDToExcel } from "@/utils/ExportQTDToExcel";
+import ExportQTDModal from "./ExportQTDModal";
 
 export default function DashList() {
     const [infoMes, setInfoMes] = useState([]);
@@ -199,7 +199,7 @@ export default function DashList() {
                     </table>
                 </div>
             </div>
-            <ExportModal isOpen={modal === 'export'} onClose={() => setModal('')} data={infoMes} />
+            <ExportQTDModal isOpen={modal === 'export'} onClose={() => setModal('')} data={infoMes} />
         </div>
     );
 }

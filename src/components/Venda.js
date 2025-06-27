@@ -38,6 +38,7 @@ export default function Venda({ venda, onEditComponent }) {
                                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Status</th>
                                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Quantidade</th>
                                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Valor Total</th>
+                                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>Vendedor</th>
                                     </tr>
                                 </thead>
                                 <tbody className='bg-white divide-y divide-gray-300'>
@@ -50,6 +51,7 @@ export default function Venda({ venda, onEditComponent }) {
                                         <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>{venda.status}</td>
                                         <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>{venda.quantidade}</td>
                                         <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>R${venda.valorTotal}</td>
+                                        <td className='px-6 py-4 whitespace-nowrap text-sm truncate'>{venda.vendedor || 'N/A'}</td>
                                     </tr>
                                 </tbody>
                             </table>

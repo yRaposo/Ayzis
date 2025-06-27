@@ -2,16 +2,18 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { getProductById } from '@/service/productsService';
-import { getSomaProdutosVendidosPorMes } from '@/service/estatisticasService';
+import { getSomaProdutoVendidosPorMes, getSomaVendasPorProduto } from '@/service/estatisticasService';
 import { getVendasByProduto } from '@/service/vendasService';
-import Grafico from '@/components/Grafico';
+import GraficoQTD from '@/components/GraficoQTD';
+import GraficoVAL from '@/components/GraficoVAL';
 
 export default function ProductPage() {
     const { id } = useParams();
     const router = useRouter();
     const [produto, setProduto] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [chartData, setChartData] = useState([]);
+    const [chartQTDData, setChartQTDData] = useState([]);
+    const [chartVALData, setChartVALData] = useState([]);
     const [vendas, setVendas] = useState([]);
 
     // Busca produto
@@ -31,13 +33,25 @@ export default function ProductPage() {
     const fetchEstatisticasProduto = useCallback(async () => {
         try {
             const decodedId = decodeURIComponent(id);
-            const stats = await getSomaProdutosVendidosPorMes(decodedId);
-            // stats é um objeto { "2024-01": 10, "2024-02": 20, ... }
-            const chartDataTemp = Object.entries(stats).map(([monthYear, quantidade]) => ({
+            // Busca quantidade vendida por mês
+            const statsQTD = await getSomaProdutoVendidosPorMes(decodedId);
+            console.log('Estatísticas de quantidade vendida por produto:', statsQTD);
+            // statsQTD é um objeto { "2024-01": 10, ... }
+            const chartQTDDataTemp = Object.entries(statsQTD).map(([monthYear, quantidade]) => ({
                 monthYear,
                 Quantidade: quantidade
             }));
-            setChartData(chartDataTemp);
+            setChartQTDData(chartQTDDataTemp);
+
+            // Busca valor vendido por mês
+            const statsVAL = await getSomaVendasPorProduto(decodedId);
+            console.log('Estatísticas de vendas por produto:', statsVAL);
+            // statsVAL é um objeto { "2024-01": 1000, ... }
+            const chartVALDataTemp = Object.entries(statsVAL).map(([monthYear, valor]) => ({
+                monthYear,
+                Valor: valor
+            }));
+            setChartVALData(chartVALDataTemp);
         } catch (error) {
             console.error('Erro ao obter estatísticas do produto:', error);
         }
@@ -98,8 +112,12 @@ export default function ProductPage() {
                     <h1 className="text-lg font-bold">{produto.nome}</h1>
                 </div>
                 <div className="my-4">
-                    <h2 className="text-xl font-bold">Gráfico de Quantidade Vendida por Mês</h2>
-                    <Grafico data={chartData} />
+                    <h2 className="text-xl font-bold">Quantidade Vendida por Mês</h2>
+                    <GraficoQTD data={chartQTDData} />
+                </div>
+                <div className="my-4">
+                    <h2 className="text-xl font-bold">Valor Faturado por Mês</h2>
+                    <GraficoVAL data={chartQTDData} />
                 </div>
             </div>
 

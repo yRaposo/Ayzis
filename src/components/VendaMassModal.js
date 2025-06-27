@@ -145,6 +145,7 @@ export default function VendaMassModal({ isOpen, onClose }) {
                             quantidade: parseInt(nextVenda?.Unidades?.trim() || "0"),
                             valorTotal: parseFloat(nextVenda?.Total?.trim() || "0"),
                             origem: selectOrigem,
+                            vendedor: venda?.Vendedor || '',
                             produto: {
                                 id: nextVenda?.SKU?.toUpperCase() || '',
                             }
@@ -165,9 +166,10 @@ export default function VendaMassModal({ isOpen, onClose }) {
                     id: venda?.NDeVenda?.toUpperCase() || '',
                     dataVenda: selectOrigem === 'ML' ? convertDateString(venda?.DataDaVenda) : convertDateDate(venda?.DataDaVenda),
                     status: venda?.Estado || '',
-                    quantidade: parseInt((venda?.Unidades || "0").toString().replace(',', '.').trim()),
+                    quantidade: parseNumber(venda?.Unidades),
                     valorTotal: parseNumber(venda?.Total),
                     origem: selectOrigem,
+                    vendedor: venda?.Vendedor || '',
                     produto: {
                         id: venda?.SKU?.toUpperCase() || '',
                     }

@@ -3,20 +3,23 @@ import { MdClose } from "react-icons/md";
 import { HiDocumentDownload } from "react-icons/hi";
 import StylezedBtn from "./StylezedBtn";
 import { useCallback, useState } from "react";
-import { exportToExcel } from "@/utils/ExportToExcel";
+import { exportQTDToExcel } from "@/utils/ExportQTDToExcel";
 import { getProductById } from "@/service/productsService";
-import { getSomaProdutosVendidos } from "@/service/estatisticasService";
-import { CgSpinner } from "react-icons/cg";
 
-export default function ExportModal({ isOpen, onClose }) {
+import { CgSpinner } from "react-icons/cg";
+// Troque para buscar valores:
+import { getSomaVendasPorProdutos } from "@/service/estatisticasService";
+import { exportVALToExcel } from "@/utils/ExportVALToExcel";
+
+export default function ExportVALModal({ isOpen, onClose }) {
     const [progress, setProgress] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Busca todos os dados de vendas por produto/mês
-    const fetchVendasPorProduto = useCallback(async () => {
+    // Busca todos os dados de valores por produto/mês
+    const fetchValoresPorProduto = useCallback(async () => {
         try {
-            const response = await getSomaProdutosVendidos();
+            const response = await getSomaVendasPorProdutos();
             return response;
         } catch (error) {
             setError("Erro ao buscar dados de vendas.");
@@ -39,9 +42,9 @@ export default function ExportModal({ isOpen, onClose }) {
         setProgress(0);
         setError(null);
 
-        // Busca os dados de vendas por produto/mês
-        const vendasPorProduto = await fetchVendasPorProduto();
-        const skus = Object.keys(vendasPorProduto);
+        // Busca os dados de valores por produto/mês
+        const valoresPorProduto = await fetchValoresPorProduto();
+        const skus = Object.keys(valoresPorProduto);
         const total = skus.length;
 
         // Monta os dados para exportação
@@ -50,17 +53,17 @@ export default function ExportModal({ isOpen, onClose }) {
             const sku = skus[i];
             const produtoInfo = await fetchProduct(sku);
 
-            // vendasPorProduto[sku] pode conter vários meses, então exporta cada mês como linha
-            Object.entries(vendasPorProduto[sku]).forEach(([key, value]) => {
-                // Só pega as chaves de quantidade (ex: "2024-05_qtd")
-                if (key.endsWith('_qtd')) {
-                    const mes = key.replace('_qtd', '');
+            // valoresPorProduto[sku] pode conter vários meses, então exporta cada mês como linha
+            Object.entries(valoresPorProduto[sku]).forEach(([key, value]) => {
+                // Só pega as chaves de valor (ex: "2024-05_valor")
+                if (key.endsWith('_valor')) {
+                    const mes = key.replace('_valor', '');
                     dataToExport.push({
                         SKU: sku,
                         Descricao: produtoInfo?.nome || '',
                         Marca: produtoInfo?.marca || '',
                         Mes: mes,
-                        Quantidade: value
+                        Valor: value
                     });
                 }
             });
@@ -68,7 +71,7 @@ export default function ExportModal({ isOpen, onClose }) {
             setProgress(((i + 1) / total) * 100);
         }
 
-        exportToExcel(dataToExport);
+        exportVALToExcel(dataToExport);
         setLoading(false);
     };
 

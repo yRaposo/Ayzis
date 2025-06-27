@@ -13,6 +13,7 @@ export default function EditVendaModal({ isOpen, onClose, venda }) {
     const [quantidade, setQuantidade] = useState('');
     const [valorTotal, setValorTotal] = useState('');
     const [produto, setProduto] = useState(venda.produto);
+    const [vendedor, setVendedor] = useState(venda.vendedor);
 
     if (!isOpen) return null;
 
@@ -23,7 +24,8 @@ export default function EditVendaModal({ isOpen, onClose, venda }) {
             status: status || venda.status,
             quantidade: quantidade || venda.quantidade,
             valorTotal: valorTotal || venda.valorTotal,
-            produto: produto
+            produto: produto,
+            vendedor: vendedor
         }
 
         updateVenda(data)

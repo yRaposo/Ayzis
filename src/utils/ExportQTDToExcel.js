@@ -1,6 +1,6 @@
 import exceljs from 'exceljs';
 
-export const exportToExcel = (data) => {
+export const exportQTDToExcel = (data) => {
     const workbook = new exceljs.Workbook();
     const sheet = workbook.addWorksheet('Sheet 1');
 

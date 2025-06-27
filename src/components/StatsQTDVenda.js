@@ -6,9 +6,9 @@ import { CgSpinner } from "react-icons/cg";
 import { getSomaProdutosVendidos } from "@/service/estatisticasService";
 import { RiFileExcel2Line } from "react-icons/ri";
 import StylezedBtn from "./StylezedBtn";
-import ExportModal from "./ExportModal";
+import ExportQTDModal from "./ExportQTDModal";
 
-export default function DashList2() {
+export default function StatsQTDVenda() {
     const [somaQtdVendas, setSomaQtdVendas] = useState({});
     const [sku, setSku] = useState('');
     const [isInputActive, setIsInputActive] = useState(false);
@@ -147,7 +147,7 @@ export default function DashList2() {
                     </table>
                 </div>
             </div>
-            <ExportModal isOpen={modal === 'export'} onClose={() => setModal('')} data={filteredEntries.reduce((acc, [produtoId, prodData]) => {
+            <ExportQTDModal isOpen={modal === 'export'} onClose={() => setModal('')} data={filteredEntries.reduce((acc, [produtoId, prodData]) => {
                 acc[produtoId] = prodData;
                 return acc;
             }, {})} />

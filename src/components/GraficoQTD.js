@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export default function Grafico({ data }) {
+export default function GraficoQTD({ data }) {
     // Ordena os dados por ano/mês
     const sortedData = [...data].sort((a, b) => new Date(a.monthYear) - new Date(b.monthYear));
 
