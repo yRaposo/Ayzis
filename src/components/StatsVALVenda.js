@@ -53,7 +53,7 @@ export default function StatsVALVenda() {
 
     const handleRowClick = (id) => {
         const encodedId = encodeURIComponent(id);
-        router.push(`dashboard/${encodedId}`);
+        router.push(`Produto/${encodedId}`);
     };
 
     const handleInputChange = (event) => {

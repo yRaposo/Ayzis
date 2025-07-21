@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export const ayzisAPI = axios.create({
-    baseURL: "http://localhost:8080/api/v1",
+    baseURL: "https://q032grw7-8080.brs.devtunnels.ms/",
 });

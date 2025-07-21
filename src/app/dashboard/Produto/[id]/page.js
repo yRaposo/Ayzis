@@ -181,6 +181,7 @@ export default function ProductPage() {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendedor</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-300">
@@ -208,6 +209,7 @@ export default function ProductPage() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.quantidade}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm truncate">R${venda.valorTotal}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.produto?.id}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm truncate">{venda.vendedor}</td>
                                         </tr>
                                     ) : null
                                 ))

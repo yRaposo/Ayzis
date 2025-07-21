@@ -1,9 +1,10 @@
 export function convertDateString(dateString) {
-    console.log("conversão de texto")
+    console.log("conversão de texto", "Input:", dateString);
+
     const months = {
         "janeiro": "01",
         "fevereiro": "02",
-        "marco": "03",
+        "março": "03",
         "abril": "04",
         "maio": "05",
         "junho": "06",
@@ -15,22 +16,36 @@ export function convertDateString(dateString) {
         "dezembro": "12"
     };
 
-    if (typeof dateString !== 'string') {
-        throw new Error("Data no formato inválido: entrada não é uma string");
+    // Verificar se a entrada é uma string válida e não vazia
+    if (typeof dateString !== 'string' || dateString.trim() === '') {
+        throw new Error("Data no formato inválido: entrada deve ser uma string não vazia");
     }
 
-    const regex = /(\d{1,2}) de (\w+) de (\d{4}) (\d{2}):(\d{2}) hs\./;
-    const match = dateString.match(regex);
+    // Regex mais flexível para capturar o formato "24 de junho de 2025 16:54 hs."
+    const regex = /(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})\s+(\d{1,2}):(\d{2})\s+hs\./i;
 
-    if (!match) {
-        throw new Error("Data no formato inválido");
+    let match;
+    try {
+        match = dateString.trim().match(regex);
+        if (!match) {
+            throw new Error(`Data no formato inválido: "${dateString}" não corresponde ao padrão esperado "DD de MMMM de AAAA HH:MM hs."`);
+        }
+    } catch (error) {
+        console.error("Erro ao converter data:", error.message);
+        throw error;
     }
 
     const day = match[1].padStart(2, '0');
-    const month = months[match[2].toLowerCase()];
+    const monthName = match[2].toLowerCase();
+    const month = months[monthName];
     const year = match[3];
     const hour = match[4].padStart(2, '0');
     const minute = match[5].padStart(2, '0');
+
+    // Verificar se o mês foi encontrado
+    if (!month) {
+        throw new Error(`Mês inválido: "${match[2]}" não foi reconhecido`);
+    }
 
     return `${year}-${month}-${day}T${hour}:${minute}:00`;
 }
